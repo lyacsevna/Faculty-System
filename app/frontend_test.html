@@ -1,0 +1,1360 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Университетский менеджмент</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Light theme colors */
+            --primary: #4361ee;
+            --primary-light: #4cc9f0;
+            --secondary: #3f37c9;
+            --success: #4cc9f0;
+            --danger: #f72585;
+            --warning: #f8961e;
+            --info: #4895ef;
+
+            --text: #212529;
+            --text-light: #6c757d;
+            --bg: #f8f9fa;
+            --bg-secondary: #e9ecef;
+            --card-bg: #ffffff;
+            --border: #dee2e6;
+
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --shadow-hover: 0 6px 12px rgba(0, 0, 0, 0.15);
+
+            --transition: all 0.3s ease;
+            --radius: 8px;
+            --radius-sm: 4px;
+        }
+
+        [data-theme="dark"] {
+            --primary: #4895ef;
+            --primary-light: #4cc9f0;
+            --secondary: #3a0ca3;
+
+            --text: #f8f9fa;
+            --text-light: #adb5bd;
+            --bg: #212529;
+            --bg-secondary: #343a40;
+            --card-bg: #2b2d42;
+            --border: #495057;
+
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            --shadow-hover: 0 6px 12px rgba(0, 0, 0, 0.4);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            transition: var(--transition);
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header styles */
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 20px 0;
+            margin-bottom: 30px;
+            box-shadow: var(--shadow);
+            position: relative;
+        }
+
+        header h1 {
+            text-align: center;
+            font-weight: 700;
+            font-size: 2.2rem;
+            letter-spacing: 0.5px;
+        }
+
+        /* Theme switcher */
+        .theme-switcher {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .theme-switcher label {
+            cursor: pointer;
+            font-size: 0.9rem;
+            color: white;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(255, 255, 255, 0.3);
+            transition: var(--transition);
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: var(--transition);
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: rgba(0, 0, 0, 0.3);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+
+        /* Tabs navigation */
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+            flex-wrap: wrap;
+        }
+
+        .tab {
+            padding: 12px 24px;
+            cursor: pointer;
+            background: var(--bg-secondary);
+            margin-right: 5px;
+            border-radius: var(--radius) var(--radius) 0 0;
+            transition: var(--transition);
+            font-weight: 500;
+            color: var(--text-light);
+        }
+
+        .tab:hover {
+            background: rgba(0, 0, 0, 0.05);
+            color: var(--text);
+        }
+
+        .tab.active {
+            background: var(--card-bg);
+            color: var(--primary);
+            border-bottom: 3px solid var(--primary);
+            font-weight: 600;
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Card styles */
+        .card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 25px;
+            margin-bottom: 25px;
+            transition: var(--transition);
+        }
+
+        .card:hover {
+            box-shadow: var(--shadow-hover);
+        }
+
+        /* Form styles */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--text);
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-size: 16px;
+            background-color: var(--card-bg);
+            color: var(--text);
+            transition: var(--transition);
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(67, 97, 238, 0.2);
+        }
+
+        .form-row {
+            display: flex;
+            gap: 20px;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+        }
+
+        /* Button styles */
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        button:hover {
+            background-color: var(--secondary);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            background-color: var(--bg-secondary);
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+        }
+
+        .btn-outline:hover {
+            background-color: rgba(67, 97, 238, 0.1);
+        }
+
+        .btn-danger {
+            background-color: var(--danger);
+        }
+
+        .btn-danger:hover {
+            background-color: #d1145a;
+        }
+
+        .btn-success {
+            background-color: var(--success);
+        }
+
+        .btn-success:hover {
+            background-color: #3aa8d1;
+        }
+
+        .btn-warning {
+            background-color: var(--warning);
+        }
+
+        .btn-warning:hover {
+            background-color: #e07e0e;
+        }
+
+        /* Table styles */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background-color: var(--card-bg);
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            background-color: var(--primary);
+            color: white;
+            font-weight: 500;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 0.5px;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover {
+            background-color: rgba(0, 0, 0, 0.03);
+        }
+
+        [data-theme="dark"] tr:hover {
+            background-color: rgba(255, 255, 255, 0.03);
+        }
+
+        .action-btns {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            padding: 8px 12px;
+            font-size: 14px;
+            min-width: 80px;
+        }
+
+        /* Response messages */
+        .response {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: var(--radius-sm);
+            background-color: var(--bg-secondary);
+            border-left: 4px solid var(--primary);
+        }
+
+        .response.success {
+            border-left-color: var(--success);
+            background-color: rgba(76, 201, 240, 0.1);
+        }
+
+        .response.error {
+            border-left-color: var(--danger);
+            background-color: rgba(247, 37, 133, 0.1);
+        }
+
+        pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-family: 'Roboto Mono', monospace;
+            font-size: 14px;
+        }
+
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .modal-content {
+            background-color: var(--card-bg);
+            border-radius: var(--radius);
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            transform: translateY(-20px);
+            transition: all 0.3s ease;
+            padding: 25px;
+            position: relative;
+        }
+
+        .modal.active .modal-content {
+            transform: translateY(0);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--primary);
+            margin: 0;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-light);
+            padding: 5px;
+        }
+
+        .modal-close:hover {
+            color: var(--danger);
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid var(--border);
+        }
+
+        /* Loading indicator */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Utility classes */
+        .text-center {
+            text-align: center;
+        }
+
+        .text-muted {
+            color: var(--text-light);
+        }
+
+        .mb-3 {
+            margin-bottom: 1rem;
+        }
+
+        .mt-3 {
+            margin-top: 1rem;
+        }
+
+        .d-flex {
+            display: flex;
+        }
+
+        .justify-between {
+            justify-content: space-between;
+        }
+
+        .align-center {
+            align-items: center;
+        }
+
+        /* Responsive styles */
+        @media (max-width: 992px) {
+            .container {
+                padding: 15px;
+            }
+
+            .card {
+                padding: 20px;
+            }
+
+            th, td {
+                padding: 12px 10px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.8rem;
+                padding-right: 60px;
+            }
+
+            .tabs {
+                flex-direction: row;
+                overflow-x: auto;
+                padding-bottom: 5px;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .tab {
+                padding: 10px 15px;
+                font-size: 0.9rem;
+                white-space: nowrap;
+            }
+
+            .form-row {
+                flex-direction: column;
+                gap: 0;
+            }
+
+            .action-btns {
+                flex-direction: column;
+            }
+
+            .action-btn {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .modal-content {
+                width: 95%;
+                padding: 15px;
+            }
+
+            .modal-title {
+                font-size: 1.3rem;
+            }
+
+            button {
+                padding: 10px 15px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Университетский менеджмент</h1>
+        <div class="theme-switcher">
+            <label for="theme-toggle">Тёмная тема</label>
+            <label class="switch">
+                <input type="checkbox" id="theme-toggle">
+                <span class="slider"></span>
+            </label>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="tabs">
+            <div class="tab active" onclick="openTab('faculties')">Факультеты</div>
+            <div class="tab" onclick="openTab('programs')">Программы</div>
+            <div class="tab" onclick="openTab('groups')">Группы</div>
+            <div class="tab" onclick="openTab('students')">Студенты</div>
+        </div>
+
+        <!-- Факультеты -->
+        <div id="faculties" class="tab-content active">
+            <div class="card">
+                <div class="d-flex justify-between align-center mb-3">
+                    <h2>Создать факультет</h2>
+                    <button class="btn-outline" onclick="openFacultyModal()">+ Добавить факультет</button>
+                </div>
+                <div class="response" id="facultyResponse"></div>
+            </div>
+
+            <div class="card">
+                <div class="d-flex justify-between align-center mb-3">
+                    <h2>Список факультетов</h2>
+                    <button onclick="getFaculties()">Обновить список</button>
+                </div>
+                <div id="facultiesList" class="text-center">
+                    <p class="text-muted">Загрузка данных...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Программы -->
+        <div id="programs" class="tab-content">
+            <div class="card">
+                <div class="d-flex justify-between align-center mb-3">
+                    <h2>Создать программу</h2>
+                    <button class="btn-outline" onclick="openProgramModal()">+ Добавить программу</button>
+                </div>
+                <div class="response" id="programResponse"></div>
+            </div>
+
+            <div class="card">
+                <div class="d-flex justify-between align-center mb-3">
+                    <h2>Список программ</h2>
+                    <button onclick="getPrograms()">Обновить список</button>
+                </div>
+                <div id="programsList" class="text-center">
+                    <p class="text-muted">Загрузка данных...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Группы -->
+        <div id="groups" class="tab-content">
+            <div class="card">
+                <div class="d-flex justify-between align-center mb-3">
+                    <h2>Создать группу</h2>
+                    <button class="btn-outline" onclick="openGroupModal()">+ Добавить группу</button>
+                </div>
+                <div class="response" id="groupResponse"></div>
+            </div>
+
+            <div class="card">
+                <div class="d-flex justify-between align-center mb-3">
+                    <h2>Список групп</h2>
+                    <button onclick="getGroups()">Обновить список</button>
+                </div>
+                <div id="groupsList" class="text-center">
+                    <p class="text-muted">Загрузка данных...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Студенты -->
+        <div id="students" class="tab-content">
+            <div class="card">
+                <div class="d-flex justify-between align-center mb-3">
+                    <h2>Создать студента</h2>
+                    <button class="btn-outline" onclick="openStudentModal()">+ Добавить студента</button>
+                </div>
+                <div class="response" id="studentResponse"></div>
+            </div>
+
+            <div class="card">
+                <div class="d-flex justify-between align-center mb-3">
+                    <h2>Список студентов</h2>
+                    <button onclick="getStudents()">Обновить список</button>
+                </div>
+                <div id="studentsList" class="text-center">
+                    <p class="text-muted">Загрузка данных...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно для факультетов -->
+    <div id="facultyModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="facultyModalTitle">Добавить факультет</h3>
+                <button class="modal-close" onclick="closeModal('facultyModal')">&times;</button>
+            </div>
+            <form id="facultyForm">
+                <input type="hidden" id="facultyId">
+                <div class="form-group">
+                    <label for="facultyName">Название факультета</label>
+                    <input type="text" id="facultyName" required>
+                    <div class="error-message" id="facultyNameError"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-outline" onclick="closeModal('facultyModal')">Отмена</button>
+                    <button type="submit" id="facultySubmitBtn">Сохранить</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Модальное окно для программ -->
+    <div id="programModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="programModalTitle">Добавить программу</h3>
+                <button class="modal-close" onclick="closeModal('programModal')">&times;</button>
+            </div>
+            <form id="programForm">
+                <input type="hidden" id="programId">
+                <div class="form-group">
+                    <label for="programName">Название программы</label>
+                    <input type="text" id="programName" required>
+                    <div class="error-message" id="programNameError"></div>
+                </div>
+                <div class="form-group">
+                    <label for="programFacultyId">ID факультета</label>
+                    <input type="number" id="programFacultyId" required>
+                    <div class="error-message" id="programFacultyIdError"></div>
+                </div>
+                <div class="form-group">
+                    <label for="programEducationLevel">Уровень образования</label>
+                    <select id="programEducationLevel" required>
+                        <option value="">Выберите уровень</option>
+                        <option value="бакалавриат">Бакалавриат</option>
+                        <option value="специалитет">Специалитет</option>
+                        <option value="магистратура">Магистратура</option>
+                        <option value="спо">СПО</option>
+                        <option value="аспирантура">Аспирантура</option>
+                        <option value="ординатура">Ординатура</option>
+                    </select>
+                    <div class="error-message" id="programEducationLevelError"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-outline" onclick="closeModal('programModal')">Отмена</button>
+                    <button type="submit" id="programSubmitBtn">Сохранить</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Модальное окно для групп -->
+    <div id="groupModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="groupModalTitle">Добавить группу</h3>
+                <button class="modal-close" onclick="closeModal('groupModal')">&times;</button>
+            </div>
+            <form id="groupForm">
+                <input type="hidden" id="groupId">
+                <div class="form-group">
+                    <label for="groupName">Название группы</label>
+                    <input type="text" id="groupName" required>
+                    <div class="error-message" id="groupNameError"></div>
+                </div>
+                <div class="form-group">
+                    <label for="groupProgramId">ID программы</label>
+                    <input type="number" id="groupProgramId" required>
+                    <div class="error-message" id="groupProgramIdError"></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="groupStudyForm">Форма обучения</label>
+                        <select id="groupStudyForm" required>
+                            <option value="">Выберите форму</option>
+                            <option value="очно">Очно</option>
+                            <option value="заочно">Заочно</option>
+                            <option value="очно-заочно">Очно-заочно</option>
+                        </select>
+                        <div class="error-message" id="groupStudyFormError"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="groupEducationLevel">Уровень образования</label>
+                        <select id="groupEducationLevel" required>
+                            <option value="">Выберите уровень</option>
+                            <option value="бакалавриат">Бакалавриат</option>
+                            <option value="специалитет">Специалитет</option>
+                            <option value="магистратура">Магистратура</option>
+                            <option value="спо">СПО</option>
+                            <option value="аспирантура">Аспирантура</option>
+                            <option value="ординатура">Ординатура</option>
+                        </select>
+                        <div class="error-message" id="groupEducationLevelError"></div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-outline" onclick="closeModal('groupModal')">Отмена</button>
+                    <button type="submit" id="groupSubmitBtn">Сохранить</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Модальное окно для студентов -->
+    <div id="studentModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="studentModalTitle">Добавить студента</h3>
+                <button class="modal-close" onclick="closeModal('studentModal')">&times;</button>
+            </div>
+            <form id="studentForm">
+                <input type="hidden" id="studentId">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="studentLastName">Фамилия</label>
+                        <input type="text" id="studentLastName" required>
+                        <div class="error-message" id="studentLastNameError"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="studentFirstName">Имя</label>
+                        <input type="text" id="studentFirstName" required>
+                        <div class="error-message" id="studentFirstNameError"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="studentMiddleName">Отчество</label>
+                        <input type="text" id="studentMiddleName">
+                        <div class="error-message" id="studentMiddleNameError"></div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="studentBirthDate">Дата рождения</label>
+                        <input type="date" id="studentBirthDate">
+                    </div>
+                    <div class="form-group">
+                        <label for="studentGender">Пол</label>
+                        <select id="studentGender">
+                            <option value="">Не указан</option>
+                            <option value="М">Мужской</option>
+                            <option value="Ж">Женский</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="studentEmail">Email</label>
+                    <input type="email" id="studentEmail">
+                    <div class="error-message" id="studentEmailError"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="studentPhone">Телефон</label>
+                    <input type="tel" id="studentPhone">
+                    <div class="error-message" id="studentPhoneError"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="studentAddress">Адрес</label>
+                    <input type="text" id="studentAddress">
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="studentBudgetContract">Основа обучения</label>
+                        <select id="studentBudgetContract" required>
+                            <option value="">Выберите основу</option>
+                            <option value="бюджет">Бюджет</option>
+                            <option value="контракт">Контракт</option>
+                        </select>
+                        <div class="error-message" id="studentBudgetContractError"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="studentStatus">Статус</label>
+                        <select id="studentStatus" required>
+                            <option value="">Выберите статус</option>
+                            <option value="учится">Учится</option>
+                            <option value="академический отпуск">Академический отпуск</option>
+                            <option value="отчислен">Отчислен</option>
+                            <option value="восстановился">Восстановился</option>
+                        </select>
+                        <div class="error-message" id="studentStatusError"></div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="studentGroupId">ID группы</label>
+                        <input type="number" id="studentGroupId" required>
+                        <div class="error-message" id="studentGroupIdError"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="studentEducationLevel">Уровень образования</label>
+                        <select id="studentEducationLevel" required>
+                            <option value="">Выберите уровень</option>
+                            <option value="бакалавриат">Бакалавриат</option>
+                            <option value="специалитет">Специалитет</option>
+                            <option value="магистратура">Магистратура</option>
+                            <option value="спо">СПО</option>
+                            <option value="аспирантура">Аспирантура</option>
+                            <option value="ординатура">Ординатура</option>
+                        </select>
+                        <div class="error-message" id="studentEducationLevelError"></div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn-outline" onclick="closeModal('studentModal')">Отмена</button>
+                    <button type="submit" id="studentSubmitBtn">Сохранить</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://127.0.0.1:8010';
+
+        // Tab navigation
+        function openTab(tabName) {
+            const tabs = document.getElementsByClassName('tab');
+            for (let i = 0; i < tabs.length; i++) {
+                tabs[i].classList.remove('active');
+            }
+
+            const tabContents = document.getElementsByClassName('tab-content');
+            for (let i = 0; i < tabContents.length; i++) {
+                tabContents[i].classList.remove('active');
+            }
+
+            document.querySelector(`.tab[onclick="openTab('${tabName}')"]`).classList.add('active');
+            document.getElementById(tabName).classList.add('active');
+        }
+
+        // Faculty functions
+        document.getElementById('createFacultyForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const name = document.getElementById('facultyName').value;
+
+            fetch(`${API_URL}/faculties/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ name })
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('facultyResponse').innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+                document.getElementById('facultyName').value = '';
+                getFaculties();
+            })
+            .catch(error => {
+                document.getElementById('facultyResponse').innerHTML = `<pre>Ошибка: ${error}</pre>`;
+            });
+        });
+
+        function getFaculties() {
+            fetch(`${API_URL}/faculties/`)
+            .then(response => response.json())
+            .then(data => {
+                let html = '<table><tr><th>ID</th><th>Название</th><th>Действия</th></tr>';
+
+                data.forEach(faculty => {
+                    html += `
+                        <tr>
+                            <td>${faculty.id}</td>
+                            <td>${faculty.name}</td>
+                            <td class="action-btns">
+                                <button class="action-btn" onclick="updateFaculty(${faculty.id})">Изменить</button>
+                                <button class="action-btn btn-danger" onclick="deleteFaculty(${faculty.id})">Удалить</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+
+                html += '</table>';
+                document.getElementById('facultiesList').innerHTML = html;
+            });
+        }
+
+        function updateFaculty(id) {
+            const newName = prompt('Введите новое название факультета:');
+            if (newName) {
+                fetch(`${API_URL}/faculties/${id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ name: newName })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    alert('Факультет успешно обновлен');
+                    getFaculties();
+                })
+                .catch(error => {
+                    alert('Ошибка при обновлении: ' + error);
+                });
+            }
+        }
+
+        function deleteFaculty(id) {
+            if (confirm('Вы уверены, что хотите удалить этот факультет?')) {
+                fetch(`${API_URL}/faculties/${id}`, {
+                    method: 'DELETE'
+                })
+                .then(response => {
+                    if (response.ok) {
+                        alert('Факультет успешно удален');
+                        getFaculties();
+                    } else {
+                        alert('Ошибка при удалении');
+                    }
+                });
+            }
+        }
+
+        // Program functions
+        document.getElementById('createProgramForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const name = document.getElementById('programName').value;
+            const faculty_id = parseInt(document.getElementById('programFacultyId').value);
+            const education_level = document.getElementById('programEducationLevel').value;
+
+            fetch(`${API_URL}/programs/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    name,
+                    faculty_id,
+                    education_level
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('programResponse').innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+                document.getElementById('programName').value = '';
+                document.getElementById('programFacultyId').value = '';
+                getPrograms();
+            })
+            .catch(error => {
+                document.getElementById('programResponse').innerHTML = `<pre>Ошибка: ${error}</pre>`;
+            });
+        });
+
+        function getPrograms() {
+            fetch(`${API_URL}/programs/`)
+            .then(response => response.json())
+            .then(data => {
+                let html = '<table><tr><th>ID</th><th>Название</th><th>ID факультета</th><th>Уровень</th><th>Действия</th></tr>';
+
+                data.forEach(program => {
+                    html += `
+                        <tr>
+                            <td>${program.id}</td>
+                            <td>${program.name}</td>
+                            <td>${program.faculty_id}</td>
+                            <td>${program.education_level}</td>
+                            <td class="action-btns">
+                                <button class="action-btn" onclick="updateProgram(${program.id})">Изменить</button>
+                                <button class="action-btn btn-danger" onclick="deleteProgram(${program.id})">Удалить</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+
+                html += '</table>';
+                document.getElementById('programsList').innerHTML = html;
+            });
+        }
+
+        function updateProgram(id) {
+            const newName = prompt('Введите новое название программы:');
+            const newFacultyId = prompt('Введите новый ID факультета:');
+            const newEducationLevel = prompt('Введите новый уровень образования:');
+
+            if (newName && newFacultyId && newEducationLevel) {
+                fetch(`${API_URL}/programs/${id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        name: newName,
+                        faculty_id: parseInt(newFacultyId),
+                        education_level: newEducationLevel
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    alert('Программа успешно обновлена');
+                    getPrograms();
+                })
+                .catch(error => {
+                    alert('Ошибка при обновлении: ' + error);
+                });
+            }
+        }
+
+        function deleteProgram(id) {
+            if (confirm('Вы уверены, что хотите удалить эту программу?')) {
+                fetch(`${API_URL}/programs/${id}`, {
+                    method: 'DELETE'
+                })
+                .then(response => {
+                    if (response.ok) {
+                        alert('Программа успешно удалена');
+                        getPrograms();
+                    } else {
+                        alert('Ошибка при удалении');
+                    }
+                });
+            }
+        }
+
+        // Group functions
+        document.getElementById('createGroupForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const name = document.getElementById('groupName').value;
+            const program_id = parseInt(document.getElementById('groupProgramId').value);
+            const study_form = document.getElementById('groupStudyForm').value;
+            const education_level = document.getElementById('groupEducationLevel').value;
+
+            fetch(`${API_URL}/groups/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    name,
+                    program_id,
+                    study_form,
+                    education_level
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('groupResponse').innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+                document.getElementById('groupName').value = '';
+                document.getElementById('groupProgramId').value = '';
+                getGroups();
+            })
+            .catch(error => {
+                document.getElementById('groupResponse').innerHTML = `<pre>Ошибка: ${error}</pre>`;
+            });
+        });
+
+        function getGroups() {
+            fetch(`${API_URL}/groups/`)
+            .then(response => response.json())
+            .then(data => {
+                let html = '<table><tr><th>ID</th><th>Название</th><th>ID программы</th><th>Форма обучения</th><th>Уровень</th><th>Действия</th></tr>';
+
+                data.forEach(group => {
+                    html += `
+                        <tr>
+                            <td>${group.id}</td>
+                            <td>${group.name}</td>
+                            <td>${group.program_id}</td>
+                            <td>${group.study_form}</td>
+                            <td>${group.education_level}</td>
+                            <td class="action-btns">
+                                <button class="action-btn" onclick="updateGroup(${group.id})">Изменить</button>
+                                <button class="action-btn btn-danger" onclick="deleteGroup(${group.id})">Удалить</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+
+                html += '</table>';
+                document.getElementById('groupsList').innerHTML = html;
+            });
+        }
+
+        function updateGroup(id) {
+            const newName = prompt('Введите новое название группы:');
+            const newProgramId = prompt('Введите новый ID программы:');
+            const newStudyForm = prompt('Введите новую форму обучения:');
+            const newEducationLevel = prompt('Введите новый уровень образования:');
+
+            if (newName && newProgramId && newStudyForm && newEducationLevel) {
+                fetch(`${API_URL}/groups/${id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        name: newName,
+                        program_id: parseInt(newProgramId),
+                        study_form: newStudyForm,
+                        education_level: newEducationLevel
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    alert('Группа успешно обновлена');
+                    getGroups();
+                })
+                .catch(error => {
+                    alert('Ошибка при обновлении: ' + error);
+                });
+            }
+        }
+
+        function deleteGroup(id) {
+            if (confirm('Вы уверены, что хотите удалить эту группу?')) {
+                fetch(`${API_URL}/groups/${id}`, {
+                    method: 'DELETE'
+                })
+                .then(response => {
+                    if (response.ok) {
+                        alert('Группа успешно удалена');
+                        getGroups();
+                    } else {
+                        alert('Ошибка при удалении');
+                    }
+                });
+            }
+        }
+
+        // Student functions
+        document.getElementById('createStudentForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const studentData = {
+                last_name: document.getElementById('studentLastName').value,
+                first_name: document.getElementById('studentFirstName').value,
+                middle_name: document.getElementById('studentMiddleName').value,
+                birth_date: document.getElementById('studentBirthDate').value || null,
+                email: document.getElementById('studentEmail').value || null,
+                phone_number: document.getElementById('studentPhone').value || null,
+                address: document.getElementById('studentAddress').value || null,
+                gender: document.getElementById('studentGender').value || null,
+                budget_contract: document.getElementById('studentBudgetContract').value,
+                status: document.getElementById('studentStatus').value,
+                group_id: parseInt(document.getElementById('studentGroupId').value),
+                education_level: document.getElementById('studentEducationLevel').value
+            };
+
+            fetch(`${API_URL}/students/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(studentData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('studentResponse').innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+                document.getElementById('createStudentForm').reset();
+                getStudents();
+            })
+            .catch(error => {
+                document.getElementById('studentResponse').innerHTML = `<pre>Ошибка: ${error}</pre>`;
+            });
+        });
+
+        function getStudents() {
+            fetch(`${API_URL}/students/`)
+            .then(response => response.json())
+            .then(data => {
+                let html = '<table><tr><th>ID</th><th>ФИО</th><th>Группа</th><th>Статус</th><th>Действия</th></tr>';
+
+                data.forEach(student => {
+                    const fullName = `${student.last_name} ${student.first_name} ${student.middle_name}`;
+                    html += `
+                        <tr>
+                            <td>${student.id}</td>
+                            <td>${fullName}</td>
+                            <td>${student.group_id}</td>
+                            <td>${student.status}</td>
+                            <td class="action-btns">
+                                <button class="action-btn" onclick="viewStudent(${student.id})">Просмотр</button>
+                                <button class="action-btn" onclick="updateStudent(${student.id})">Изменить</button>
+                                <button class="action-btn btn-danger" onclick="deleteStudent(${student.id})">Удалить</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+
+                html += '</table>';
+                document.getElementById('studentsList').innerHTML = html;
+            });
+        }
+
+        function viewStudent(id) {
+            fetch(`${API_URL}/students/${id}`)
+            .then(response => response.json())
+            .then(data => {
+                alert(`
+                    ФИО: ${data.last_name} ${data.first_name} ${data.middle_name}
+                    Дата рождения: ${data.birth_date || 'не указана'}
+                    Email: ${data.email || 'не указан'}
+                    Телефон: ${data.phone_number || 'не указан'}
+                    Адрес: ${data.address || 'не указан'}
+                    Пол: ${data.gender === 'М' ? 'Мужской' : 'Женский'}
+                    Основа обучения: ${data.budget_contract}
+                    Статус: ${data.status}
+                    ID группы: ${data.group_id}
+                    Уровень образования: ${data.education_level}
+                `);
+            });
+        }
+
+        function updateStudent(id) {
+            fetch(`${API_URL}/students/${id}`)
+            .then(response => response.json())
+            .then(student => {
+                const newLastName = prompt('Фамилия:', student.last_name);
+                const newFirstName = prompt('Имя:', student.first_name);
+                const newMiddleName = prompt('Отчество:', student.middle_name);
+                const newStatus = prompt('Статус:', student.status);
+
+                if (newLastName && newFirstName && newMiddleName && newStatus) {
+                    const updateData = {
+                        last_name: newLastName,
+                        first_name: newFirstName,
+                        middle_name: newMiddleName,
+                        status: newStatus
+                    };
+
+                    fetch(`${API_URL}/students/${id}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(updateData)
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        alert('Студент успешно обновлен');
+                        getStudents();
+                    })
+                    .catch(error => {
+                        alert('Ошибка при обновлении: ' + error);
+                    });
+                }
+            });
+        }
+
+        function deleteStudent(id) {
+            if (confirm('Вы уверены, что хотите удалить этого студента?')) {
+                fetch(`${API_URL}/students/${id}`, {
+                    method: 'DELETE'
+                })
+                .then(response => {
+                    if (response.ok) {
+                        alert('Студент успешно удален');
+                        getStudents();
+                    } else {
+                        alert('Ошибка при удалении');
+                    }
+                });
+            }
+        }
+
+        // Load initial data
+        getFaculties();
+        getPrograms();
+        getGroups();
+        getStudents();
+    </script>
+</body>
+</html>
