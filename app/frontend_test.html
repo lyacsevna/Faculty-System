@@ -637,192 +637,232 @@
     <input type="file" id="fileInput" accept=".xlsx,.xls" style="display: none;">
 
     <script>
-       // Конфигурация API
-const API_BASE_URL = 'http://127.0.0.1:8140';
 
-document.addEventListener('DOMContentLoaded', function() {
-    // DOM элементы
-    const facultySelect = document.getElementById('faculty');
-    const programSelect = document.getElementById('program');
-    const groupSelect = document.getElementById('group');
-    const statusSelect = document.getElementById('status');
-    const studentsList = document.getElementById('students-list');
-    const loadingElement = document.getElementById('loading');
-    const emptyStateElement = document.getElementById('empty-state');
+    // Конфигурация API
+    const API_BASE_URL = 'http://127.0.0.1:8140';
 
-    // Кнопки
-    const createStudentBtn = document.getElementById('createStudentBtn');
-    const createGroupBtn = document.getElementById('createGroupBtn');
-    const createProgramBtn = document.getElementById('createProgramBtn');
-    const createFacultyBtn = document.getElementById('createFacultyBtn');
-    const exportBtn = document.getElementById('exportBtn');
-    const importBtn = document.getElementById('importBtn');
-    const fileInput = document.getElementById('fileInput');
+    document.addEventListener('DOMContentLoaded', function() {
+        // DOM элементы
+        const facultySelect = document.getElementById('faculty');
+        const programSelect = document.getElementById('program');
+        const groupSelect = document.getElementById('group');
+        const statusSelect = document.getElementById('status');
+        const studentsList = document.getElementById('students-list');
+        const loadingElement = document.getElementById('loading');
+        const emptyStateElement = document.getElementById('empty-state');
 
-    // Модальные окна
-    const studentModal = document.getElementById('studentModal');
-    const groupModal = document.getElementById('groupModal');
-    const programModal = document.getElementById('programModal');
-    const facultyModal = document.getElementById('facultyModal');
+        // Кнопки
+        const createStudentBtn = document.getElementById('createStudentBtn');
+        const createGroupBtn = document.getElementById('createGroupBtn');
+        const createProgramBtn = document.getElementById('createProgramBtn');
+        const createFacultyBtn = document.getElementById('createFacultyBtn');
+        const exportBtn = document.getElementById('exportBtn');
+        const importBtn = document.getElementById('importBtn');
+        const fileInput = document.getElementById('fileInput');
 
-    // Кнопки сохранения
-    const saveStudentBtn = document.getElementById('saveStudentBtn');
-    const saveGroupBtn = document.getElementById('saveGroupBtn');
-    const saveProgramBtn = document.getElementById('saveProgramBtn');
-    const saveFacultyBtn = document.getElementById('saveFacultyBtn');
+        // Модальные окна
+        const studentModal = document.getElementById('studentModal');
+        const groupModal = document.getElementById('groupModal');
+        const programModal = document.getElementById('programModal');
+        const facultyModal = document.getElementById('facultyModal');
 
-    // Инициализация приложения
-    initModals();
-    loadInitialData();
+        // Кнопки сохранения
+        const saveStudentBtn = document.getElementById('saveStudentBtn');
+        const saveGroupBtn = document.getElementById('saveGroupBtn');
+        const saveProgramBtn = document.getElementById('saveProgramBtn');
+        const saveFacultyBtn = document.getElementById('saveFacultyBtn');
 
-    // Функция инициализации модальных окон
-    function initModals() {
-        // Закрытие модальных окон
-        document.querySelectorAll('.modal-close').forEach(btn => {
-            btn.addEventListener('click', closeAllModals);
-        });
+        // Инициализация
+        initModals();
+        loadInitialData();
 
-        // Закрытие при клике вне модального окна
-        [studentModal, groupModal, programModal, facultyModal].forEach(modal => {
-            modal.addEventListener('click', function(e) {
-                if (e.target === modal) {
-                    closeAllModals();
+        // Функция инициализации модальных окон
+        function initModals() {
+            // Закрытие модальных окон
+            document.querySelectorAll('.modal-close').forEach(btn => {
+                btn.addEventListener('click', closeAllModals);
+            });
+
+            // Закрытие при клике вне модального окна
+            [studentModal, groupModal, programModal, facultyModal].forEach(modal => {
+                modal.addEventListener('click', function(e) {
+                    if (e.target === modal) {
+                        closeAllModals();
+                    }
+                });
+            });
+        }
+
+        // Загрузка начальных данных
+        async function loadInitialData() {
+            await loadFaculties();
+            await loadStudents();
+        }
+
+        // Функции работы с API
+        async function fetchData(endpoint) {
+
+            try {
+                // Убедимся, что endpoint не содержит базовый URL
+                if (endpoint.startsWith('http')) {
+                    endpoint = endpoint.replace(API_BASE_URL, '');
                 }
-            });
-        });
-    }
 
-    // Загрузка начальных данных
-    async function loadInitialData() {
-        await loadFaculties();
-        await loadStudents();
-    }
+                const url = endpoint.startsWith('/')
+                    ? `${API_BASE_URL}${endpoint}`
+                    : `${API_BASE_URL}/${endpoint}`;
 
-    // Функции работы с API
-    async function fetchData(endpoint) {
-        try {
-            const url = endpoint.startsWith('http') ? endpoint : `${API_BASE_URL}${endpoint}`;
-            const response = await fetch(url);
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+                const response = await fetch(url);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return await response.json();
+            } catch (error) {
+                console.error('Fetch error:', error);
+                alert(`Ошибка при загрузке данных: ${error.message}`);
+                return null;
             }
-            return await response.json();
-        } catch (error) {
-            console.error('Fetch error:', error);
-            alert(`Ошибка при загрузке данных: ${error.message}`);
-            return null;
         }
-    }
 
-    async function postData(endpoint, data) {
-        try {
-            const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(data)
-            });
+        async function postData(endpoint, data) {
+            try {
+                const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
 
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.detail || 'Ошибка при сохранении данных');
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.detail || 'Ошибка при сохранении данных');
+                }
+
+                return await response.json();
+            } catch (error) {
+                console.error('Error:', error);
+                throw error;
             }
-
-            return await response.json();
-        } catch (error) {
-            console.error('Error:', error);
-            throw error;
         }
-    }
 
-    // Функции загрузки данных
-    async function loadFaculties() {
-        const faculties = await fetchData('/faculties/');
-        if (faculties) {
-            facultySelect.innerHTML = '<option value="">Все факультеты</option>';
-            faculties.forEach(faculty => {
-                const option = document.createElement('option');
-                option.value = faculty.id;
-                option.textContent = faculty.name;
-                facultySelect.appendChild(option);
-            });
+        // Функции загрузки данных
+        async function loadFaculties() {
+            const faculties = await fetchData('/faculties/');
+            if (faculties) {
+                facultySelect.innerHTML = '<option value="">Все факультеты</option>';
+                faculties.forEach(faculty => {
+                    const option = document.createElement('option');
+                    option.value = faculty.id;
+                    option.textContent = faculty.name;
+                    facultySelect.appendChild(option);
+                });
+            }
         }
-    }
 
-    async function loadPrograms(facultyId) {
-        programSelect.disabled = true;
-        programSelect.innerHTML = '<option value="">Загрузка...</option>';
+        async function loadPrograms(facultyId) {
+            programSelect.disabled = true;
+            programSelect.innerHTML = '<option value="">Загрузка...</option>';
 
-        const programs = await fetchData(`/faculties/${facultyId}/programs`);
+            const programs = await fetchData(`/faculties/${facultyId}/programs`);
 
-        programSelect.innerHTML = '<option value="">Все направления</option>';
-        if (programs) {
-            programs.forEach(program => {
-                const option = document.createElement('option');
-                option.value = program.id;
-                option.textContent = program.name;
-                programSelect.appendChild(option);
-            });
+            programSelect.innerHTML = '<option value="">Все направления</option>';
+            if (programs) {
+                programs.forEach(program => {
+                    const option = document.createElement('option');
+                    option.value = program.id;
+                    option.textContent = program.name;
+                    programSelect.appendChild(option);
+                });
+            }
+            programSelect.disabled = false;
         }
-        programSelect.disabled = false;
-    }
 
-    async function loadGroups(programId) {
-        groupSelect.disabled = true;
-        groupSelect.innerHTML = '<option value="">Загрузка...</option>';
+        async function loadGroups(programId) {
+            groupSelect.disabled = true;
+            groupSelect.innerHTML = '<option value="">Загрузка...</option>';
 
-        const groups = await fetchData(`/programs/${programId}/groups`);
+            const groups = await fetchData(`/programs/${programId}/groups`);
 
-        groupSelect.innerHTML = '<option value="">Все группы</option>';
-        if (groups) {
-            groups.forEach(group => {
-                const option = document.createElement('option');
-                option.value = group.id;
-                option.textContent = group.name;
-                groupSelect.appendChild(option);
-            });
+            groupSelect.innerHTML = '<option value="">Все группы</option>';
+            if (groups) {
+                groups.forEach(group => {
+                    const option = document.createElement('option');
+                    option.value = group.id;
+                    option.textContent = group.name;
+                    groupSelect.appendChild(option);
+                });
+            }
+            groupSelect.disabled = false;
         }
-        groupSelect.disabled = false;
-    }
 
-    async function loadStudents() {
+        async function loadStudents() {
     showLoading();
     try {
-        // 1. Загружаем студентов
+        // Загружаем всех студентов
         const students = await fetchData('/students/');
+
         if (!students || students.length === 0) {
             showEmptyState();
             return;
         }
 
-        // 2. Загружаем все группы, программы и факультеты
+        // Загружаем связанные данные
         const [groups, programs, faculties] = await Promise.all([
             fetchData('/groups/'),
             fetchData('/programs/'),
             fetchData('/faculties/')
         ]);
 
-        // 3. Создаем lookup-объекты для быстрого поиска
+        // Создаем lookup-таблицы
         const groupsMap = createLookupMap(groups);
         const programsMap = createLookupMap(programs);
         const facultiesMap = createLookupMap(faculties);
 
-        // 4. Обогащаем данные студентов
-        const enrichedStudents = students.map(student => {
+        // Обогащаем и фильтруем данные
+        let enrichedStudents = students.map(student => {
             const group = groupsMap[student.group_id];
             const program = group ? programsMap[group.program_id] : null;
             const faculty = program ? facultiesMap[program.faculty_id] : null;
 
             return {
                 ...student,
-                group: group || { id: student.group_id, name: 'Неизвестная группа' },
-                program: program || { id: group?.program_id, name: 'Неизвестное направление' },
-                faculty: faculty || { id: program?.faculty_id, name: 'Неизвестный факультет' }
+                group,
+                program,
+                faculty
             };
         });
 
-        // 5. Рендерим обогащенных студентов
+        // Применяем фильтры
+        if (facultySelect.value) {
+            enrichedStudents = enrichedStudents.filter(student =>
+                student.faculty?.id == facultySelect.value
+            );
+        }
+
+        if (programSelect.value) {
+            enrichedStudents = enrichedStudents.filter(student =>
+                student.program?.id == programSelect.value
+            );
+        }
+
+        if (groupSelect.value) {
+            enrichedStudents = enrichedStudents.filter(student =>
+                student.group?.id == groupSelect.value
+            );
+        }
+
+        if (statusSelect.value) {
+            enrichedStudents = enrichedStudents.filter(student =>
+                student.status == statusSelect.value
+            );
+        }
+
+        if (enrichedStudents.length === 0) {
+            showEmptyState();
+            return;
+        }
+
         renderStudents(enrichedStudents);
 
     } catch (error) {
@@ -834,7 +874,8 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 }
 
-    function createLookupMap(items) {
+// Вспомогательная функция для создания словарей
+function createLookupMap(items) {
     if (!items) return {};
     return items.reduce((map, item) => {
         map[item.id] = item;
@@ -874,356 +915,358 @@ function renderStudents(students) {
     });
 }
 
-    // Функции управления UI
-    function showLoading() {
-        loadingElement.style.display = 'flex';
-        studentsList.innerHTML = '';
-        emptyStateElement.style.display = 'none';
-    }
-
-    function hideLoading() {
-        loadingElement.style.display = 'none';
-    }
-
-    function showEmptyState() {
-        studentsList.innerHTML = '';
-        emptyStateElement.style.display = 'block';
-    }
-
-    function openModal(modal) {
-        modal.style.display = 'flex';
-        document.body.style.overflow = 'hidden';
-    }
-
-    function closeAllModals() {
-        [studentModal, groupModal, programModal, facultyModal].forEach(modal => {
-            modal.style.display = 'none';
-        });
-        document.body.style.overflow = 'auto';
-        clearModalErrors();
-    }
-
-    function clearModalErrors() {
-        document.querySelectorAll('.error-message').forEach(el => {
-            el.textContent = '';
-        });
-    }
-
-    // Обработчики событий для фильтров
-    facultySelect.addEventListener('change', async function() {
-        programSelect.disabled = !this.value;
-        groupSelect.disabled = true;
-
-        if (this.value) {
-            await loadPrograms(this.value);
-            programSelect.value = '';
-            groupSelect.innerHTML = '<option value="">Все группы</option>';
+        // Функции управления UI
+        function showLoading() {
+            loadingElement.style.display = 'flex';
+            studentsList.innerHTML = '';
+            emptyStateElement.style.display = 'none';
         }
-        loadStudents();
-    });
 
-    programSelect.addEventListener('change', async function() {
-        groupSelect.disabled = !this.value;
-
-        if (this.value) {
-            await loadGroups(this.value);
-            groupSelect.value = '';
+        function hideLoading() {
+            loadingElement.style.display = 'none';
         }
-        loadStudents();
-    });
 
-    groupSelect.addEventListener('change', function() {
-        loadStudents();
-    });
+        function showEmptyState() {
+            studentsList.innerHTML = '';
+            emptyStateElement.style.display = 'block';
+        }
 
-    statusSelect.addEventListener('change', function() {
-        loadStudents();
-    });
+        function openModal(modal) {
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
 
-    // Обработчики для кнопок создания
-    createStudentBtn.addEventListener('click', async function() {
-        // Загружаем программы для выбора
-        const programs = await fetchData('/programs/');
-        const programSelect = document.getElementById('studentProgram');
-        programSelect.innerHTML = '<option value="">Выберите программу</option>';
-
-        programs?.forEach(program => {
-            const option = document.createElement('option');
-            option.value = program.id;
-            option.textContent = program.name;
-            programSelect.appendChild(option);
-        });
-
-        // Сбрасываем выбор группы
-        const groupSelect = document.getElementById('studentGroup');
-        groupSelect.innerHTML = '<option value="">Сначала выберите программу</option>';
-        groupSelect.disabled = true;
-
-        openModal(studentModal);
-    });
-
-    createGroupBtn.addEventListener('click', async function() {
-        // Загружаем программы для выбора
-        const programs = await fetchData('/programs/');
-        const programSelect = document.getElementById('groupProgram');
-        programSelect.innerHTML = '<option value="">Выберите программу</option>';
-
-        programs?.forEach(program => {
-            const option = document.createElement('option');
-            option.value = program.id;
-            option.textContent = program.name;
-            programSelect.appendChild(option);
-        });
-
-        openModal(groupModal);
-    });
-
-    createProgramBtn.addEventListener('click', async function() {
-        // Загружаем факультеты для выбора
-        const faculties = await fetchData('/faculties/');
-        const facultySelect = document.getElementById('programFaculty');
-        facultySelect.innerHTML = '<option value="">Выберите факультет</option>';
-
-        faculties?.forEach(faculty => {
-            const option = document.createElement('option');
-            option.value = faculty.id;
-            option.textContent = faculty.name;
-            facultySelect.appendChild(option);
-        });
-
-        openModal(programModal);
-    });
-
-    createFacultyBtn.addEventListener('click', function() {
-        openModal(facultyModal);
-    });
-
-    // Обработчик изменения программы для студента
-    document.getElementById('studentProgram').addEventListener('change', async function() {
-        const programId = this.value;
-        const groupSelect = document.getElementById('studentGroup');
-
-        if (programId) {
-            const groups = await fetchData(`/programs/${programId}/groups`);
-            groupSelect.innerHTML = '<option value="">Выберите группу</option>';
-            groupSelect.disabled = false;
-
-            groups?.forEach(group => {
-                const option = document.createElement('option');
-                option.value = group.id;
-                option.textContent = group.name;
-                groupSelect.appendChild(option);
+        function closeAllModals() {
+            [studentModal, groupModal, programModal, facultyModal].forEach(modal => {
+                modal.style.display = 'none';
             });
-        } else {
+            document.body.style.overflow = 'auto';
+            clearModalErrors();
+        }
+
+        function clearModalErrors() {
+            document.querySelectorAll('.error-message').forEach(el => {
+                el.textContent = '';
+            });
+        }
+
+        // Обработчики событий для фильтров
+        facultySelect.addEventListener('change', async function() {
+            programSelect.disabled = !this.value;
+            groupSelect.disabled = true;
+
+            if (this.value) {
+                await loadPrograms(this.value);
+                programSelect.value = '';
+                groupSelect.innerHTML = '<option value="">Все группы</option>';
+            }
+            loadStudents();
+        });
+
+        programSelect.addEventListener('change', async function() {
+            groupSelect.disabled = !this.value;
+
+            if (this.value) {
+                await loadGroups(this.value);
+                groupSelect.value = '';
+            }
+            loadStudents();
+        });
+
+        groupSelect.addEventListener('change', function() {
+            loadStudents();
+        });
+
+        statusSelect.addEventListener('change', function() {
+            loadStudents();
+        });
+
+        // Обработчики для кнопок создания
+        createStudentBtn.addEventListener('click', async function() {
+            // Загружаем программы для выбора
+            const programs = await fetchData('/programs/');
+            const programSelect = document.getElementById('studentProgram');
+            programSelect.innerHTML = '<option value="">Выберите программу</option>';
+
+            programs?.forEach(program => {
+                const option = document.createElement('option');
+                option.value = program.id;
+                option.textContent = program.name;
+                programSelect.appendChild(option);
+            });
+
+            // Сбрасываем выбор группы
+            const groupSelect = document.getElementById('studentGroup');
             groupSelect.innerHTML = '<option value="">Сначала выберите программу</option>';
             groupSelect.disabled = true;
+
+            openModal(studentModal);
+        });
+
+        createGroupBtn.addEventListener('click', async function() {
+            // Загружаем программы для выбора
+            const programs = await fetchData('/programs/');
+            const programSelect = document.getElementById('groupProgram');
+            programSelect.innerHTML = '<option value="">Выберите программу</option>';
+
+            programs?.forEach(program => {
+                const option = document.createElement('option');
+                option.value = program.id;
+                option.textContent = program.name;
+                programSelect.appendChild(option);
+            });
+
+            openModal(groupModal);
+        });
+
+        createProgramBtn.addEventListener('click', async function() {
+            // Загружаем факультеты для выбора
+            const faculties = await fetchData('/faculties/');
+            const facultySelect = document.getElementById('programFaculty');
+            facultySelect.innerHTML = '<option value="">Выберите факультет</option>';
+
+            faculties?.forEach(faculty => {
+                const option = document.createElement('option');
+                option.value = faculty.id;
+                option.textContent = faculty.name;
+                facultySelect.appendChild(option);
+            });
+
+            openModal(programModal);
+        });
+
+        createFacultyBtn.addEventListener('click', function() {
+            openModal(facultyModal);
+        });
+
+        // Обработчик изменения программы для студента
+        document.getElementById('studentProgram').addEventListener('change', async function() {
+            const programId = this.value;
+            const groupSelect = document.getElementById('studentGroup');
+
+            if (programId) {
+                const groups = await fetchData(`/programs/${programId}/groups`);
+                groupSelect.innerHTML = '<option value="">Выберите группу</option>';
+                groupSelect.disabled = false;
+
+                groups?.forEach(group => {
+                    const option = document.createElement('option');
+                    option.value = group.id;
+                    option.textContent = group.name;
+                    groupSelect.appendChild(option);
+                });
+            } else {
+                groupSelect.innerHTML = '<option value="">Сначала выберите программу</option>';
+                groupSelect.disabled = true;
+            }
+        });
+
+        // Функции создания сущностей
+        async function createFaculty() {
+            try {
+                const name = document.getElementById('facultyName').value.trim();
+
+                if (!name) {
+                    alert('Введите название факультета');
+                    return;
+                }
+
+                const result = await postData('/faculties/', { name });
+                if (result) {
+                    closeAllModals();
+                    document.getElementById('facultyName').value = '';
+                    loadFaculties();
+                    alert('Факультет успешно создан');
+                }
+            } catch (error) {
+                console.error('Error creating faculty:', error);
+                alert(`Ошибка при создании факультета: ${error.message}`);
+            }
         }
-    });
 
-    // Функции создания сущностей
-    async function createFaculty() {
-        try {
-            const name = document.getElementById('facultyName').value.trim();
+        async function createProgram() {
+            try {
+                const name = document.getElementById('programName').value.trim();
+                const facultyId = document.getElementById('programFaculty').value;
+                const educationLevel = document.getElementById('programEducationLevel').value;
 
-            if (!name) {
-                alert('Введите название факультета');
-                return;
+                if (!name || !facultyId) {
+                    alert('Заполните все обязательные поля');
+                    return;
+                }
+
+                const result = await postData('/programs/', {
+                    name,
+                    faculty_id: facultyId,
+                    education_level: educationLevel
+                });
+
+                if (result) {
+                    closeAllModals();
+                    document.getElementById('programName').value = '';
+                    document.getElementById('programFaculty').value = '';
+                    document.getElementById('programEducationLevel').value = 'бакалавриат';
+
+                    if (facultySelect.value === facultyId) {
+                        await loadPrograms(facultyId);
+                    }
+                    alert('Программа успешно создана');
+                }
+            } catch (error) {
+                console.error('Error creating program:', error);
+                alert(`Ошибка при создании программы: ${error.message}`);
+            }
+        }
+
+        async function createGroup() {
+            try {
+                const name = document.getElementById('groupName').value.trim();
+                const programId = document.getElementById('groupProgram').value;
+                const studyForm = document.getElementById('groupStudyForm').value;
+                const educationLevel = document.getElementById('groupEducationLevel').value;
+
+                if (!name || !programId) {
+                    alert('Заполните все обязательные поля');
+                    return;
+                }
+
+                const result = await postData('/groups/', {
+                    name,
+                    program_id: programId,
+                    study_form: studyForm,
+                    education_level: educationLevel
+                });
+
+                if (result) {
+                    closeAllModals();
+                    document.getElementById('groupName').value = '';
+                    document.getElementById('groupProgram').value = '';
+                    document.getElementById('groupStudyForm').value = 'очно';
+                    document.getElementById('groupEducationLevel').value = 'бакалавриат';
+
+                    if (programSelect.value === programId) {
+                        await loadGroups(programId);
+                    }
+                    alert('Группа успешно создана');
+                }
+            } catch (error) {
+                console.error('Error creating group:', error);
+                alert(`Ошибка при создании группы: ${error.message}`);
+            }
+        }
+
+        async function createStudent() {
+            try {
+                const formData = {
+                    last_name: document.getElementById('studentLastName').value.trim(),
+                    first_name: document.getElementById('studentFirstName').value.trim(),
+                    middle_name: document.getElementById('studentMiddleName').value.trim(),
+                    birth_date: document.getElementById('studentBirthDate').value || null,
+                    email: document.getElementById('studentEmail').value || null,
+                    phone_number: document.getElementById('studentPhone').value || null,
+                    address: document.getElementById('studentAddress').value || null,
+                    gender: document.getElementById('studentGender').value || null,
+                    budget_contract: document.getElementById('studentBudget').value,
+                    status: document.getElementById('studentStatus').value,
+                    group_id: document.getElementById('studentGroup').value,
+                    education_level: document.getElementById('studentEducationLevel').value
+                };
+
+                if (!formData.last_name || !formData.first_name || !formData.group_id) {
+                    alert('Заполните все обязательные поля');
+                    return;
+                }
+
+                const result = await postData('/students/', formData);
+                if (result) {
+                    closeAllModals();
+                    // Сбрасываем форму
+                    document.getElementById('studentLastName').value = '';
+                    document.getElementById('studentFirstName').value = '';
+                    document.getElementById('studentMiddleName').value = '';
+                    document.getElementById('studentBirthDate').value = '';
+                    document.getElementById('studentEmail').value = '';
+                    document.getElementById('studentPhone').value = '';
+                    document.getElementById('studentAddress').value = '';
+                    document.getElementById('studentGender').value = '';
+                    document.getElementById('studentBudget').value = 'бюджет';
+                    document.getElementById('studentStatus').value = 'учится';
+                    document.getElementById('studentProgram').value = '';
+                    document.getElementById('studentGroup').value = '';
+                    document.getElementById('studentGroup').disabled = true;
+                    document.getElementById('studentEducationLevel').value = 'бакалавриат';
+
+                    loadStudents();
+                    alert('Студент успешно создан');
+                }
+            } catch (error) {
+                console.error('Error creating student:', error);
+                alert(`Ошибка при создании студента: ${error.message}`);
+            }
+        }
+
+        // Обработчики для кнопок сохранения
+        saveFacultyBtn.addEventListener('click', createFaculty);
+        saveProgramBtn.addEventListener('click', createProgram);
+        saveGroupBtn.addEventListener('click', createGroup);
+        saveStudentBtn.addEventListener('click', createStudent);
+
+        // Обработчики для экспорта/импорта
+        exportBtn.addEventListener('click', function() {
+            const facultyId = facultySelect.value;
+            const programId = programSelect.value;
+            const groupId = groupSelect.value;
+
+            let entityType = 'student';
+
+            if (groupId) {
+                entityType = 'student';
+            } else if (programId) {
+                entityType = 'group';
+            } else if (facultyId) {
+                entityType = 'program';
             }
 
-            const result = await postData('/faculties/', { name });
-            if (result) {
-                closeAllModals();
-                document.getElementById('facultyName').value = '';
+            window.open(`${API_BASE_URL}/export/excel/?entity_type=${entityType}&include_ids=true`, '_blank');
+        });
+
+        importBtn.addEventListener('click', function() {
+            fileInput.click();
+        });
+
+        fileInput.addEventListener('change', function() {
+            if (this.files.length > 0) {
+                importData(this.files[0]);
+            }
+        });
+
+        async function importData(file) {
+            try {
+                const formData = new FormData();
+                formData.append('file', file);
+
+                const response = await fetch(`${API_BASE_URL}/import/excel/`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error('Ошибка импорта данных');
+                }
+
+                const result = await response.json();
+                alert(`Импорт завершен\nУспешно: ${result.imported_records}\nПропущено: ${result.skipped_records}`);
+
+                // Обновляем данные
                 loadFaculties();
-                alert('Факультет успешно создан');
-            }
-        } catch (error) {
-            console.error('Error creating faculty:', error);
-            alert(`Ошибка при создании факультета: ${error.message}`);
-        }
-    }
-
-    async function createProgram() {
-        try {
-            const name = document.getElementById('programName').value.trim();
-            const facultyId = document.getElementById('programFaculty').value;
-            const educationLevel = document.getElementById('programEducationLevel').value;
-
-            if (!name || !facultyId) {
-                alert('Заполните все обязательные поля');
-                return;
-            }
-
-            const result = await postData('/programs/', {
-                name,
-                faculty_id: facultyId,
-                education_level: educationLevel
-            });
-
-            if (result) {
-                closeAllModals();
-                document.getElementById('programName').value = '';
-                document.getElementById('programFaculty').value = '';
-                document.getElementById('programEducationLevel').value = 'бакалавриат';
-
-                if (facultySelect.value === facultyId) {
-                    await loadPrograms(facultyId);
-                }
-                alert('Программа успешно создана');
-            }
-        } catch (error) {
-            console.error('Error creating program:', error);
-            alert(`Ошибка при создании программы: ${error.message}`);
-        }
-    }
-
-    async function createGroup() {
-        try {
-            const name = document.getElementById('groupName').value.trim();
-            const programId = document.getElementById('groupProgram').value;
-            const studyForm = document.getElementById('groupStudyForm').value;
-            const educationLevel = document.getElementById('groupEducationLevel').value;
-
-            if (!name || !programId) {
-                alert('Заполните все обязательные поля');
-                return;
-            }
-
-            const result = await postData('/groups/', {
-                name,
-                program_id: programId,
-                study_form: studyForm,
-                education_level: educationLevel
-            });
-
-            if (result) {
-                closeAllModals();
-                document.getElementById('groupName').value = '';
-                document.getElementById('groupProgram').value = '';
-                document.getElementById('groupStudyForm').value = 'очно';
-                document.getElementById('groupEducationLevel').value = 'бакалавриат';
-
-                if (programSelect.value === programId) {
-                    await loadGroups(programId);
-                }
-                alert('Группа успешно создана');
-            }
-        } catch (error) {
-            console.error('Error creating group:', error);
-            alert(`Ошибка при создании группы: ${error.message}`);
-        }
-    }
-
-    async function createStudent() {
-        try {
-            const formData = {
-                last_name: document.getElementById('studentLastName').value.trim(),
-                first_name: document.getElementById('studentFirstName').value.trim(),
-                middle_name: document.getElementById('studentMiddleName').value.trim(),
-                birth_date: document.getElementById('studentBirthDate').value || null,
-                email: document.getElementById('studentEmail').value || null,
-                phone_number: document.getElementById('studentPhone').value || null,
-                address: document.getElementById('studentAddress').value || null,
-                gender: document.getElementById('studentGender').value || null,
-                budget_contract: document.getElementById('studentBudget').value,
-                status: document.getElementById('studentStatus').value,
-                group_id: document.getElementById('studentGroup').value,
-                education_level: document.getElementById('studentEducationLevel').value
-            };
-
-            if (!formData.last_name || !formData.first_name || !formData.group_id) {
-                alert('Заполните все обязательные поля');
-                return;
-            }
-
-            const result = await postData('/students/', formData);
-            if (result) {
-                closeAllModals();
-                // Сбрасываем форму
-                document.getElementById('studentLastName').value = '';
-                document.getElementById('studentFirstName').value = '';
-                document.getElementById('studentMiddleName').value = '';
-                document.getElementById('studentBirthDate').value = '';
-                document.getElementById('studentEmail').value = '';
-                document.getElementById('studentPhone').value = '';
-                document.getElementById('studentAddress').value = '';
-                document.getElementById('studentGender').value = '';
-                document.getElementById('studentBudget').value = 'бюджет';
-                document.getElementById('studentStatus').value = 'учится';
-                document.getElementById('studentProgram').value = '';
-                document.getElementById('studentGroup').value = '';
-                document.getElementById('studentGroup').disabled = true;
-                document.getElementById('studentEducationLevel').value = 'бакалавриат';
-
                 loadStudents();
-                alert('Студент успешно создан');
+            } catch (error) {
+                console.error('Error importing data:', error);
+                alert(`Ошибка при импорте данных: ${error.message}`);
             }
-        } catch (error) {
-            console.error('Error creating student:', error);
-            alert(`Ошибка при создании студента: ${error.message}`);
-        }
-    }
-
-    // Обработчики для кнопок сохранения
-    saveFacultyBtn.addEventListener('click', createFaculty);
-    saveProgramBtn.addEventListener('click', createProgram);
-    saveGroupBtn.addEventListener('click', createGroup);
-    saveStudentBtn.addEventListener('click', createStudent);
-
-    // Обработчики для экспорта/импорта
-    exportBtn.addEventListener('click', function() {
-        const facultyId = facultySelect.value;
-        const programId = programSelect.value;
-        const groupId = groupSelect.value;
-
-        let entityType = 'student';
-
-        if (groupId) {
-            entityType = 'student';
-        } else if (programId) {
-            entityType = 'group';
-        } else if (facultyId) {
-            entityType = 'program';
-        }
-
-        window.open(`${API_BASE_URL}/export/excel/?entity_type=${entityType}&include_ids=true`, '_blank');
-    });
-
-    importBtn.addEventListener('click', function() {
-        fileInput.click();
-    });
-
-    fileInput.addEventListener('change', function() {
-        if (this.files.length > 0) {
-            importData(this.files[0]);
         }
     });
 
-    async function importData(file) {
-        try {
-            const formData = new FormData();
-            formData.append('file', file);
-
-            const response = await fetch(`${API_BASE_URL}/import/excel/`, {
-                method: 'POST',
-                body: formData
-            });
-
-            if (!response.ok) {
-                throw new Error('Ошибка импорта данных');
-            }
-
-            const result = await response.json();
-            alert(`Импорт завершен\nУспешно: ${result.imported_records}\nПропущено: ${result.skipped_records}`);
-
-            // Обновляем данные
-            loadFaculties();
-            loadStudents();
-        } catch (error) {
-            console.error('Error importing data:', error);
-            alert(`Ошибка при импорте данных: ${error.message}`);
-        }
-    }
-});
     </script>
+
 </body>
