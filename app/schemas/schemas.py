@@ -131,3 +131,14 @@ class Student(StudentBase):
 
     class Config:
         from_attributes = True
+
+class ExcelImportResponse(BaseModel):
+    message: str
+    total_records: int
+    imported_records: int
+    skipped_records: int
+    errors: Optional[List[str]] = None
+
+class ExportOptions(BaseModel):
+    entity_type: str = Field(..., description="Type of entity to export (faculty, program, group, student)")
+    include_ids: bool = Field(True, description="Include IDs in export")

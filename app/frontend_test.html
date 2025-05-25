@@ -3,68 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Модуль учета студентов факультета</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <title>Управление студентами</title>
     <style>
         :root {
-            /* Light theme colors */
-            --primary: #4361ee;
-            --primary-light: #4cc9f0;
-            --secondary: #3f37c9;
-            --success: #4cc9f0;
-            --danger: #f72585;
-            --warning: #f8961e;
-            --info: #4895ef;
-
-            --text: #212529;
-            --text-light: #6c757d;
-            --bg: #f8f9fa;
-            --bg-secondary: #e9ecef;
-            --card-bg: #ffffff;
-            --border: #dee2e6;
-
-            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            --shadow-hover: 0 6px 12px rgba(0, 0, 0, 0.15);
-
-            --transition: all 0.3s ease;
-            --radius: 8px;
-            --radius-sm: 4px;
-        }
-
-        [data-theme="dark"] {
-            --primary: #4895ef;
-            --primary-light: #4cc9f0;
-            --secondary: #3a0ca3;
-
-            --text: #f8f9fa;
-            --text-light: #adb5bd;
-            --bg: #212529;
-            --bg-secondary: #343a40;
-            --card-bg: #2b2d42;
-            --border: #495057;
-
-            --shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-            --shadow-hover: 0 6px 12px rgba(0, 0, 0, 0.4);
+            --primary: #3f51b5;
+            --primary-dark: #303f9f;
+            --accent: #ff4081;
+            --light: #f5f5f5;
+            --dark: #212121;
+            --gray: #757575;
+            --light-gray: #e0e0e0;
+            --white: #ffffff;
+            --error: #f44336;
+            --success: #4caf50;
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
+            font-family: 'Roboto', sans-serif;
         }
 
         body {
-            font-family: 'Roboto', sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
+            background-color: var(--light);
+            color: var(--dark);
             line-height: 1.6;
-            transition: var(--transition);
-        }
-
-        h1, h2, h3, h4, h5, h6 {
-            font-family: 'Montserrat', sans-serif;
-            font-weight: 600;
-            margin-bottom: 1rem;
         }
 
         .container {
@@ -73,212 +37,44 @@
             padding: 20px;
         }
 
-        /* Header styles */
         header {
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            color: white;
-            padding: 20px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             margin-bottom: 30px;
-            box-shadow: var(--shadow);
-            position: relative;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--light-gray);
         }
 
-        header h1 {
-            text-align: center;
-            font-weight: 700;
-            font-size: 2.2rem;
-            letter-spacing: 0.5px;
-        }
-
-        /* Theme switcher */
-        .theme-switcher {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .theme-switcher label {
-            cursor: pointer;
-            font-size: 0.9rem;
-            color: white;
-        }
-
-        .switch {
-            position: relative;
-            display: inline-block;
-            width: 50px;
-            height: 24px;
-        }
-
-        .switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-
-        .slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: rgba(255, 255, 255, 0.3);
-            transition: var(--transition);
-            border-radius: 34px;
-        }
-
-        .slider:before {
-            position: absolute;
-            content: "";
-            height: 16px;
-            width: 16px;
-            left: 4px;
-            bottom: 4px;
-            background-color: white;
-            transition: var(--transition);
-            border-radius: 50%;
-        }
-
-        input:checked + .slider {
-            background-color: rgba(0, 0, 0, 0.3);
-        }
-
-        input:checked + .slider:before {
-            transform: translateX(26px);
-        }
-
-        /* Tabs navigation */
-        .tabs {
-            display: flex;
-            margin-bottom: 20px;
-            border-bottom: 1px solid var(--border);
-            flex-wrap: wrap;
-        }
-
-        .tab {
-            padding: 12px 24px;
-            cursor: pointer;
-            background: var(--bg-secondary);
-            margin-right: 5px;
-            border-radius: var(--radius) var(--radius) 0 0;
-            transition: var(--transition);
-            font-weight: 500;
-            color: var(--text-light);
-        }
-
-        .tab:hover {
-            background: rgba(0, 0, 0, 0.05);
-            color: var(--text);
-        }
-
-        .tab.active {
-            background: var(--card-bg);
+        h1 {
             color: var(--primary);
-            border-bottom: 3px solid var(--primary);
-            font-weight: 600;
-        }
-
-        .tab-content {
-            display: none;
-            animation: fadeIn 0.4s ease;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* Card styles */
-        .card {
-            background: var(--card-bg);
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-            padding: 25px;
-            margin-bottom: 25px;
-            transition: var(--transition);
-        }
-
-        .card:hover {
-            box-shadow: var(--shadow-hover);
-        }
-
-        /* Form styles */
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 8px;
             font-weight: 500;
-            color: var(--text);
         }
 
-        input, select, textarea {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid var(--border);
-            border-radius: var(--radius-sm);
-            font-size: 16px;
-            background-color: var(--card-bg);
-            color: var(--text);
-            transition: var(--transition);
-        }
-
-        input:focus, select:focus, textarea:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 2px rgba(67, 97, 238, 0.2);
-        }
-
-        .form-row {
+        .actions {
             display: flex;
-            gap: 20px;
+            gap: 10px;
         }
 
-        .form-row .form-group {
-            flex: 1;
-        }
-
-        /* Button styles */
         button {
-            background-color: var(--primary);
-            color: white;
+            padding: 10px 15px;
             border: none;
-            padding: 12px 20px;
-            border-radius: var(--radius-sm);
+            border-radius: 4px;
             cursor: pointer;
-            font-size: 16px;
             font-weight: 500;
-            transition: var(--transition);
-            display: inline-flex;
+            transition: all 0.3s ease;
+            display: flex;
             align-items: center;
-            justify-content: center;
             gap: 8px;
         }
 
-        button:hover {
-            background-color: var(--secondary);
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-hover);
+        .btn-primary {
+            background-color: var(--primary);
+            color: var(--white);
         }
 
-        button:active {
-            transform: translateY(0);
-        }
-
-        button:disabled {
-            background-color: var(--bg-secondary);
-            cursor: not-allowed;
-            transform: none !important;
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
         }
 
         .btn-outline {
@@ -288,107 +84,135 @@
         }
 
         .btn-outline:hover {
-            background-color: rgba(67, 97, 238, 0.1);
+            background-color: rgba(63, 81, 181, 0.1);
         }
 
-        .btn-danger {
-            background-color: var(--danger);
+        .btn-accent {
+            background-color: var(--accent);
+            color: var(--white);
         }
 
-        .btn-danger:hover {
-            background-color: #d1145a;
+        .btn-accent:hover {
+            background-color: #e91e63;
         }
 
-        .btn-success {
-            background-color: var(--success);
+        .filters {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+            background: var(--white);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         }
 
-        .btn-success:hover {
-            background-color: #3aa8d1;
+        .filter-group {
+            display: flex;
+            flex-direction: column;
         }
 
-        .btn-warning {
-            background-color: var(--warning);
+        label {
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--gray);
+            font-size: 14px;
         }
 
-        .btn-warning:hover {
-            background-color: #e07e0e;
+        select, input {
+            padding: 10px;
+            border: 1px solid var(--light-gray);
+            border-radius: 4px;
+            font-size: 14px;
+            background-color: var(--white);
         }
 
-        /* Table styles */
-        table {
+        select:focus, input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(63, 81, 181, 0.2);
+        }
+
+        .students-table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 20px;
-            background-color: var(--card-bg);
-            border-radius: var(--radius);
+            background: var(--white);
+            border-radius: 8px;
             overflow: hidden;
-            box-shadow: var(--shadow);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         }
 
-        th, td {
-            padding: 15px;
+        .students-table th, .students-table td {
+            padding: 12px 15px;
             text-align: left;
-            border-bottom: 1px solid var(--border);
+            border-bottom: 1px solid var(--light-gray);
         }
 
-        th {
+        .students-table th {
             background-color: var(--primary);
-            color: white;
+            color: var(--white);
             font-weight: 500;
-            text-transform: uppercase;
-            font-size: 0.8rem;
-            letter-spacing: 0.5px;
+            position: sticky;
+            top: 0;
         }
 
-        tr:last-child td {
-            border-bottom: none;
+        .students-table tr:hover {
+            background-color: rgba(63, 81, 181, 0.05);
         }
 
-        tr:hover {
-            background-color: rgba(0, 0, 0, 0.03);
+        .status-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
         }
 
-        [data-theme="dark"] tr:hover {
-            background-color: rgba(255, 255, 255, 0.03);
+        .status-studying {
+            background-color: #e8f5e9;
+            color: var(--success);
         }
 
-        .action-btns {
+        .status-leave {
+            background-color: #fff8e1;
+            color: #ff8f00;
+        }
+
+        .status-expelled {
+            background-color: #ffebee;
+            color: var(--error);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            background: var(--white);
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .empty-state p {
+            color: var(--gray);
+            margin-top: 10px;
+        }
+
+        .loading {
             display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
+            justify-content: center;
+            padding: 40px;
         }
 
-        .action-btn {
-            padding: 8px 12px;
-            font-size: 14px;
-            min-width: 80px;
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-top-color: var(--primary);
+            animation: spin 1s ease-in-out infinite;
         }
 
-        /* Response messages */
-        .response {
-            margin-top: 20px;
-            padding: 15px;
-            border-radius: var(--radius-sm);
-            background-color: var(--bg-secondary);
-            border-left: 4px solid var(--primary);
-        }
-
-        .response.success {
-            border-left-color: var(--success);
-            background-color: rgba(76, 201, 240, 0.1);
-        }
-
-        .response.error {
-            border-left-color: var(--danger);
-            background-color: rgba(247, 37, 133, 0.1);
-        }
-
-        pre {
-            white-space: pre-wrap;
-            word-wrap: break-word;
-            font-family: 'Roboto Mono', monospace;
-            font-size: 14px;
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
 
         /* Modal styles */
@@ -403,362 +227,282 @@
             z-index: 1000;
             justify-content: center;
             align-items: center;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .modal.active {
-            display: flex;
-            opacity: 1;
         }
 
         .modal-content {
-            background-color: var(--card-bg);
-            border-radius: var(--radius);
+            background-color: var(--white);
+            border-radius: 8px;
             width: 90%;
-            max-width: 600px;
+            max-width: 500px;
             max-height: 90vh;
             overflow-y: auto;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-            transform: translateY(-20px);
-            transition: all 0.3s ease;
-            padding: 25px;
-            position: relative;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            animation: modalFadeIn 0.3s;
         }
 
-        .modal.active .modal-content {
-            transform: translateY(0);
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .modal-header {
+            padding: 15px 20px;
+            border-bottom: 1px solid var(--light-gray);
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid var(--border);
         }
 
         .modal-title {
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: var(--primary);
-            margin: 0;
+            font-size: 18px;
+            font-weight: 500;
+            color: var(--dark);
         }
 
         .modal-close {
             background: none;
             border: none;
-            font-size: 1.5rem;
+            font-size: 24px;
             cursor: pointer;
-            color: var(--text-light);
-            padding: 5px;
+            color: var(--gray);
         }
 
-        .modal-close:hover {
-            color: var(--danger);
+        .modal-body {
+            padding: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
         }
 
         .modal-footer {
+            padding: 15px 20px;
+            border-top: 1px solid var(--light-gray);
             display: flex;
             justify-content: flex-end;
             gap: 10px;
-            margin-top: 20px;
-            padding-top: 15px;
-            border-top: 1px solid var(--border);
         }
 
-        /* Loading indicator */
-        .loading {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            border-top-color: white;
-            animation: spin 1s ease-in-out infinite;
+        .error-message {
+            color: var(--error);
+            font-size: 12px;
+            margin-top: 5px;
         }
 
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        /* Utility classes */
-        .text-center {
-            text-align: center;
-        }
-
-        .text-muted {
-            color: var(--text-light);
-        }
-
-        .mb-3 {
-            margin-bottom: 1rem;
-
-        }
-
-        .mt-3 {
-            margin-top: 1rem;
-        }
-
-        .d-flex {
-            display: flex;
-        }
-
-        .justify-between {
-            justify-content: space-between;
-        }
-
-        .align-center {
-            align-items: center;
-        }
-
-        /* Responsive styles */
-        @media (max-width: 992px) {
-            .container {
-                padding: 15px;
-            }
-
-            .card {
-                padding: 20px;
-            }
-
-            th, td {
-                padding: 12px 10px;
-            }
-        }
-
+        /* Responsive */
         @media (max-width: 768px) {
-            header h1 {
-                font-size: 1.8rem;
-                padding-right: 60px;
+            .filters {
+                grid-template-columns: 1fr;
             }
 
-            .tabs {
-                flex-direction: row;
-                overflow-x: auto;
-                padding-bottom: 5px;
-                -webkit-overflow-scrolling: touch;
-            }
-
-            .tab {
-                padding: 10px 15px;
-                font-size: 0.9rem;
-                white-space: nowrap;
-            }
-
-            .form-row {
+            header {
                 flex-direction: column;
-                gap: 0;
+                align-items: flex-start;
+                gap: 15px;
             }
 
-            .action-btns {
-                flex-direction: column;
-            }
-
-            .action-btn {
+            .actions {
                 width: 100%;
-            }
-        }
-
-        @media (max-width: 576px) {
-            .modal-content {
-                width: 95%;
-                padding: 15px;
+                flex-wrap: wrap;
             }
 
-            .modal-title {
-                font-size: 1.3rem;
-            }
-
-            button {
-                padding: 10px 15px;
-                font-size: 14px;
+            .students-table {
+                display: block;
+                overflow-x: auto;
             }
         }
     </style>
 </head>
 <body>
-    <header>
-        <h1>Модуль учета студентов факультета</h1>
-        <div class="theme-switcher">
-            <label for="theme-toggle">Тёмная тема</label>
-            <label class="switch">
-                <input type="checkbox" id="theme-toggle">
-                <span class="slider"></span>
-            </label>
-        </div>
-    </header>
-
     <div class="container">
-        <div class="tabs">
-            <div class="tab active" onclick="openTab('students')">Студенты</div>
-            <div class="tab" onclick="openTab('faculties')">Факультеты</div>
-            <div class="tab" onclick="openTab('programs')">Программы</div>
-            <div class="tab" onclick="openTab('groups')">Группы</div>
-        </div>
+        <header>
+            <h1>Управление студентами</h1>
+            <div class="actions">
+                <button class="btn-primary" id="createStudentBtn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
+                    </svg>
+                    Добавить студента
+                </button>
+                <button class="btn-outline" id="createGroupBtn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
+                    </svg>
+                    Добавить группу
+                </button>
+                <button class="btn-outline" id="createProgramBtn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
+                    </svg>
+                    Добавить направление
+                </button>
+                <button class="btn-outline" id="createFacultyBtn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
+                    </svg>
+                    Добавить факультет
+                </button>
+                <button class="btn-outline" id="exportBtn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M8.5 6.5a.5.5 0 0 0-1 0v3.793L6.354 9.146a.5.5 0 1 0-.708.708l2 2a.5.5 0 0 0 .708 0l2-2a.5.5 0 0 0-.708-.708L8.5 10.293V6.5z"/>
+                        <path d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2zM9.5 3A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5v2z"/>
+                    </svg>
+                    Экспорт
+                </button>
+                <button class="btn-accent" id="importBtn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
+                        <path d="M7.646 1.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 2.707V11.5a.5.5 0 0 1-1 0V2.707L5.354 4.854a.5.5 0 1 1-.708-.708l3-3z"/>
+                    </svg>
+                    Импорт
+                </button>
+            </div>
+        </header>
 
-        <!-- Студенты -->
-        <div id="students" class="tab-content active">
-            <div class="card">
-                <div class="d-flex justify-between align-center mb-3">
-                    <h2>Создать студента</h2>
-                    <button class="btn-outline" onclick="openStudentModal()">+ Добавить студента</button>
-                </div>
-                <div class="response" id="studentResponse"></div>
+        <div class="filters">
+            <div class="filter-group">
+                <label for="faculty">Факультет</label>
+                <select id="faculty">
+                    <option value="">Все факультеты</option>
+                </select>
             </div>
 
-            <div class="card">
-                <div class="d-flex justify-between align-center mb-3">
-                    <h2>Список студентов</h2>
-                    <div>
-                        <select id="facultyFilter" onchange="loadPrograms()" class="mr-2">
-                            <option value="">Выберите факультет</option>
-                        </select>
-                        <select id="programFilter" onchange="loadGroups()" class="mr-2" disabled>
-                            <option value="">Выберите программу</option>
-                        </select>
-                        <select id="groupFilter" onchange="loadStudents()" class="mr-2" disabled>
-                            <option value="">Выберите группу</option>
-                        </select>
-                        <button onclick="loadStudents()">Обновить</button>
-                    </div>
-                </div>
+            <div class="filter-group">
+                <label for="program">Направление</label>
+                <select id="program" disabled>
+                    <option value="">Все направления</option>
+                </select>
+            </div>
 
-                <div class="filters mb-3">
-                    <select id="budgetFilter" onchange="applyFilters()" class="mr-2">
-                        <option value="">Все формы обучения</option>
-                        <option value="бюджет">Бюджет</option>
-                        <option value="контракт">Контракт</option>
-                    </select>
-                    <select id="statusFilter" onchange="applyFilters()" class="mr-2">
-                        <option value="">Все статусы</option>
-                        <option value="учится">Учится</option>
-                        <option value="академический отпуск">Академотпуск</option>
-                        <option value="отчислен">Отчислен</option>
-                        <option value="восстановился">Восстановился</option>
-                    </select>
-                    <select id="genderFilter" onchange="applyFilters()" class="mr-2">
-                        <option value="">Все</option>
+            <div class="filter-group">
+                <label for="group">Группа</label>
+                <select id="group" disabled>
+                    <option value="">Все группы</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label for="status">Статус</label>
+                <select id="status">
+                    <option value="">Все статусы</option>
+                    <option value="учится">Учится</option>
+                    <option value="академический отпуск">Академотпуск</option>
+                    <option value="отчислен">Отчислен</option>
+                    <option value="восстановился">Восстановлен</option>
+                </select>
+            </div>
+        </div>
+
+        <div id="students-container">
+            <table class="students-table">
+                <thead>
+                    <tr>
+                        <th>ФИО</th>
+                        <th>Группа</th>
+                        <th>Направление</th>
+                        <th>Факультет</th>
+                        <th>Статус</th>
+                        <th>Форма обучения</th>
+                    </tr>
+                </thead>
+                <tbody id="students-list">
+                    <!-- Students will be loaded here -->
+                </tbody>
+            </table>
+        </div>
+
+        <div id="loading" class="loading" style="display: none;">
+            <div class="spinner"></div>
+        </div>
+
+        <div id="empty-state" class="empty-state" style="display: none;">
+            <h3>Студенты не найдены</h3>
+            <p>Попробуйте изменить параметры фильтрации</p>
+        </div>
+    </div>
+
+    <!-- Модальное окно для создания студента -->
+    <div id="studentModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Добавить студента</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="studentLastName">Фамилия</label>
+                    <input type="text" id="studentLastName" required>
+                    <div class="error-message" id="lastNameError"></div>
+                </div>
+                <div class="form-group">
+                    <label for="studentFirstName">Имя</label>
+                    <input type="text" id="studentFirstName" required>
+                    <div class="error-message" id="firstNameError"></div>
+                </div>
+                <div class="form-group">
+                    <label for="studentMiddleName">Отчество</label>
+                    <input type="text" id="studentMiddleName">
+                </div>
+                <div class="form-group">
+                    <label for="studentBirthDate">Дата рождения</label>
+                    <input type="date" id="studentBirthDate">
+                </div>
+                <div class="form-group">
+                    <label for="studentEmail">Email</label>
+                    <input type="email" id="studentEmail">
+                    <div class="error-message" id="emailError"></div>
+                </div>
+                <div class="form-group">
+                    <label for="studentPhone">Телефон</label>
+                    <input type="tel" id="studentPhone">
+                </div>
+                <div class="form-group">
+                    <label for="studentAddress">Адрес</label>
+                    <input type="text" id="studentAddress">
+                </div>
+                <div class="form-group">
+                    <label for="studentGender">Пол</label>
+                    <select id="studentGender">
+                        <option value="">Не указан</option>
                         <option value="М">Мужской</option>
                         <option value="Ж">Женский</option>
                     </select>
                 </div>
-
-                <div id="studentsList" class="text-center">
-                    <p class="text-muted">Выберите факультет, программу и группу</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Факультеты -->
-        <div id="faculties" class="tab-content">
-            <div class="card">
-                <div class="d-flex justify-between align-center mb-3">
-                    <h2>Создать факультет</h2>
-                    <button class="btn-outline" onclick="openFacultyModal()">+ Добавить факультет</button>
-                </div>
-                <div class="response" id="facultyResponse"></div>
-            </div>
-
-            <div class="card">
-                <div class="d-flex justify-between align-center mb-3">
-                    <h2>Список факультетов</h2>
-                    <button onclick="getFaculties()">Обновить список</button>
-                </div>
-                <div id="facultiesList" class="text-center">
-                    <p class="text-muted">Загрузка данных...</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Программы -->
-        <div id="programs" class="tab-content">
-            <div class="card">
-                <div class="d-flex justify-between align-center mb-3">
-                    <h2>Создать программу</h2>
-                    <button class="btn-outline" onclick="openProgramModal()">+ Добавить программу</button>
-                </div>
-                <div class="response" id="programResponse"></div>
-            </div>
-
-            <div class="card">
-                <div class="d-flex justify-between align-center mb-3">
-                    <h2>Список программ</h2>
-                    <button onclick="getPrograms()">Обновить список</button>
-                </div>
-                <div id="programsList" class="text-center">
-                    <p class="text-muted">Загрузка данных...</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Группы -->
-        <div id="groups" class="tab-content">
-            <div class="card">
-                <div class="d-flex justify-between align-center mb-3">
-                    <h2>Создать группу</h2>
-                    <button class="btn-outline" onclick="openGroupModal()">+ Добавить группу</button>
-                </div>
-                <div class="response" id="groupResponse"></div>
-            </div>
-
-            <div class="card">
-                <div class="d-flex justify-between align-center mb-3">
-                    <h2>Список групп</h2>
-                    <button onclick="getGroups()">Обновить список</button>
-                </div>
-                <div id="groupsList" class="text-center">
-                    <p class="text-muted">Загрузка данных...</p>
-                </div>
-            </div>
-        </div>
-    </div>
-     <!-- Модальное окно для факультетов -->
-    <div id="facultyModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title" id="facultyModalTitle">Добавить факультет</h3>
-                <button class="modal-close" onclick="closeModal('facultyModal')">&times;</button>
-            </div>
-            <form id="facultyForm">
-                <input type="hidden" id="facultyId">
                 <div class="form-group">
-                    <label for="facultyName">Название факультета</label>
-                    <input type="text" id="facultyName" required>
-                    <div class="error-message" id="facultyNameError"></div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn-outline" onclick="closeModal('facultyModal')">Отмена</button>
-                    <button type="submit" id="facultySubmitBtn">Сохранить</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Модальное окно для программ -->
-    <div id="programModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title" id="programModalTitle">Добавить программу</h3>
-                <button class="modal-close" onclick="closeModal('programModal')">&times;</button>
-            </div>
-            <form id="programForm">
-                <input type="hidden" id="programId">
-                <div class="form-group">
-                    <label for="programName">Название программы</label>
-                    <input type="text" id="programName" required>
-                    <div class="error-message" id="programNameError"></div>
+                    <label for="studentBudget">Форма финансирования</label>
+                    <select id="studentBudget" required>
+                        <option value="бюджет">Бюджет</option>
+                        <option value="контракт">Контракт</option>
+                    </select>
                 </div>
                 <div class="form-group">
-                    <label for="programFacultyId">ID факультета</label>
-                    <input type="number" id="programFacultyId" required>
-                    <div class="error-message" id="programFacultyIdError"></div>
+                    <label for="studentStatus">Статус</label>
+                    <select id="studentStatus" required>
+                        <option value="учится">Учится</option>
+                        <option value="академический отпуск">Академический отпуск</option>
+                        <option value="отчислен">Отчислен</option>
+                        <option value="восстановился">Восстановлен</option>
+                    </select>
                 </div>
                 <div class="form-group">
-                    <label for="programEducationLevel">Уровень образования</label>
-                    <select id="programEducationLevel" required>
-                        <option value="">Выберите уровень</option>
+                    <label for="studentGroup">Группа</label>
+                    <select id="studentGroup" required>
+                        <option value="">Выберите группу</option>
+                    </select>
+                    <div class="error-message" id="groupError"></div>
+                </div>
+                <div class="form-group">
+                    <label for="studentEducationLevel">Уровень образования</label>
+                    <select id="studentEducationLevel" required>
                         <option value="бакалавриат">Бакалавриат</option>
                         <option value="специалитет">Специалитет</option>
                         <option value="магистратура">Магистратура</option>
@@ -766,938 +510,744 @@
                         <option value="аспирантура">Аспирантура</option>
                         <option value="ординатура">Ординатура</option>
                     </select>
-                    <div class="error-message" id="programEducationLevelError"></div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn-outline" onclick="closeModal('programModal')">Отмена</button>
-                    <button type="submit" id="programSubmitBtn">Сохранить</button>
-                </div>
-            </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-outline modal-close">Отмена</button>
+                <button class="btn-primary" id="saveStudentBtn">Сохранить</button>
+            </div>
         </div>
     </div>
 
-    <!-- Модальное окно для групп -->
+    <!-- Модальное окно для создания группы -->
     <div id="groupModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 class="modal-title" id="groupModalTitle">Добавить группу</h3>
-                <button class="modal-close" onclick="closeModal('groupModal')">&times;</button>
+                <h3 class="modal-title">Добавить группу</h3>
+                <button class="modal-close">&times;</button>
             </div>
-            <form id="groupForm">
-                <input type="hidden" id="groupId">
+            <div class="modal-body">
                 <div class="form-group">
                     <label for="groupName">Название группы</label>
                     <input type="text" id="groupName" required>
                     <div class="error-message" id="groupNameError"></div>
                 </div>
                 <div class="form-group">
-                    <label for="groupProgramId">ID программы</label>
-                    <input type="number" id="groupProgramId" required>
-                    <div class="error-message" id="groupProgramIdError"></div>
+                    <label for="groupProgram">Направление</label>
+                    <select id="groupProgram" required>
+                        <option value="">Выберите направление</option>
+                    </select>
+                    <div class="error-message" id="groupProgramError"></div>
                 </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="groupStudyForm">Форма обучения</label>
-                        <select id="groupStudyForm" required>
-                            <option value="">Выберите форму</option>
-                            <option value="очно">Очно</option>
-                            <option value="заочно">Заочно</option>
-                            <option value="очно-заочно">Очно-заочно</option>
-                        </select>
-                        <div class="error-message" id="groupStudyFormError"></div>
-                    </div>
-                    <div class="form-group">
-                        <label for="groupEducationLevel">Уровень образования</label>
-                        <select id="groupEducationLevel" required>
-                            <option value="">Выберите уровень</option>
-                            <option value="бакалавриат">Бакалавриат</option>
-                            <option value="специалитет">Специалитет</option>
-                            <option value="магистратура">Магистратура</option>
-                            <option value="спо">СПО</option>
-                            <option value="аспирантура">Аспирантура</option>
-                            <option value="ординатура">Ординатура</option>
-                        </select>
-                        <div class="error-message" id="groupEducationLevelError"></div>
-                    </div>
+                <div class="form-group">
+                    <label for="groupStudyForm">Форма обучения</label>
+                    <select id="groupStudyForm" required>
+                        <option value="очно">Очно</option>
+                        <option value="заочно">Заочно</option>
+                        <option value="очно-заочно">Очно-заочно</option>
+                    </select>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn-outline" onclick="closeModal('groupModal')">Отмена</button>
-                    <button type="submit" id="groupSubmitBtn">Сохранить</button>
+                <div class="form-group">
+                    <label for="groupEducationLevel">Уровень образования</label>
+                    <select id="groupEducationLevel" required>
+                        <option value="бакалавриат">Бакалавриат</option>
+                        <option value="специалитет">Специалитет</option>
+                        <option value="магистратура">Магистратура</option>
+                        <option value="спо">СПО</option>
+                        <option value="аспирантура">Аспирантура</option>
+                        <option value="ординатура">Ординатура</option>
+                    </select>
                 </div>
-            </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-outline modal-close">Отмена</button>
+                <button class="btn-primary" id="saveGroupBtn">Сохранить</button>
+            </div>
         </div>
     </div>
 
-    <!-- Модальное окно для студентов -->
-    <div id="studentModal" class="modal">
+    <!-- Модальное окно для создания направления -->
+    <div id="programModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 class="modal-title" id="studentModalTitle">Добавить студента</h3>
-                <button class="modal-close" onclick="closeModal('studentModal')">&times;</button>
+                <h3 class="modal-title">Добавить направление</h3>
+                <button class="modal-close">&times;</button>
             </div>
-            <form id="studentForm">
-                <input type="hidden" id="studentId">
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="studentLastName">Фамилия</label>
-                        <input type="text" id="studentLastName" required>
-                        <div class="error-message" id="studentLastNameError"></div>
-                    </div>
-                    <div class="form-group">
-                        <label for="studentFirstName">Имя</label>
-                        <input type="text" id="studentFirstName" required>
-                        <div class="error-message" id="studentFirstNameError"></div>
-                    </div>
-                    <div class="form-group">
-                        <label for="studentMiddleName">Отчество</label>
-                        <input type="text" id="studentMiddleName">
-                        <div class="error-message" id="studentMiddleNameError"></div>
-                    </div>
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="studentBirthDate">Дата рождения</label>
-                        <input type="date" id="studentBirthDate">
-                    </div>
-                    <div class="form-group">
-                        <label for="studentGender">Пол</label>
-                        <select id="studentGender">
-                            <option value="">Не указан</option>
-                            <option value="М">Мужской</option>
-                            <option value="Ж">Женский</option>
-                        </select>
-                    </div>
-                </div>
-
+            <div class="modal-body">
                 <div class="form-group">
-                    <label for="studentEmail">Email</label>
-                    <input type="email" id="studentEmail">
-                    <div class="error-message" id="studentEmailError"></div>
+                    <label for="programName">Название направления</label>
+                    <input type="text" id="programName" required>
+                    <div class="error-message" id="programNameError"></div>
                 </div>
-
                 <div class="form-group">
-                    <label for="studentPhone">Телефон</label>
-                    <input type="tel" id="studentPhone">
-                    <div class="error-message" id="studentPhoneError"></div>
+                    <label for="programFaculty">Факультет</label>
+                    <select id="programFaculty" required>
+                        <option value="">Выберите факультет</option>
+                    </select>
+                    <div class="error-message" id="programFacultyError"></div>
                 </div>
-
                 <div class="form-group">
-                    <label for="studentAddress">Адрес</label>
-                    <input type="text" id="studentAddress">
+                    <label for="programEducationLevel">Уровень образования</label>
+                    <select id="programEducationLevel" required>
+                        <option value="бакалавриат">Бакалавриат</option>
+                        <option value="специалитет">Специалитет</option>
+                        <option value="магистратура">Магистратура</option>
+                        <option value="спо">СПО</option>
+                        <option value="аспирантура">Аспирантура</option>
+                        <option value="ординатура">Ординатура</option>
+                    </select>
                 </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="studentBudgetContract">Основа обучения</label>
-                        <select id="studentBudgetContract" required>
-                            <option value="">Выберите основу</option>
-                            <option value="бюджет">Бюджет</option>
-                            <option value="контракт">Контракт</option>
-                        </select>
-                        <div class="error-message" id="studentBudgetContractError"></div>
-                    </div>
-                    <div class="form-group">
-                        <label for="studentStatus">Статус</label>
-                        <select id="studentStatus" required>
-                            <option value="">Выберите статус</option>
-                            <option value="учится">Учится</option>
-                            <option value="академический отпуск">Академический отпуск</option>
-                            <option value="отчислен">Отчислен</option>
-                            <option value="восстановился">Восстановился</option>
-                        </select>
-                        <div class="error-message" id="studentStatusError"></div>
-                    </div>
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="studentGroupId">ID группы</label>
-                        <input type="number" id="studentGroupId" required>
-                        <div class="error-message" id="studentGroupIdError"></div>
-                    </div>
-                    <div class="form-group">
-                        <label for="studentEducationLevel">Уровень образования</label>
-                        <select id="studentEducationLevel" required>
-                            <option value="">Выберите уровень</option>
-                            <option value="бакалавриат">Бакалавриат</option>
-                            <option value="специалитет">Специалитет</option>
-                            <option value="магистратура">Магистратура</option>
-                            <option value="спо">СПО</option>
-                            <option value="аспирантура">Аспирантура</option>
-                            <option value="ординатура">Ординатура</option>
-                        </select>
-                        <div class="error-message" id="studentEducationLevelError"></div>
-                    </div>
-                </div>
-
-                <div class="modal-footer">
-                    <button type="button" class="btn-outline" onclick="closeModal('studentModal')">Отмена</button>
-                    <button type="submit" id="studentSubmitBtn">Сохранить</button>
-                </div>
-            </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-outline modal-close">Отмена</button>
+                <button class="btn-primary" id="saveProgramBtn">Сохранить</button>
+            </div>
         </div>
     </div>
 
-    <script>
-const API_URL = 'http://127.0.0.1:8101';
-
-// Инициализация при загрузке страницы
-document.addEventListener('DOMContentLoaded', function() {
-    loadTheme();
-    initEventListeners();
-    loadInitialData();
-});
-
-// Загрузка темы из localStorage
-function loadTheme() {
-    const savedTheme = localStorage.getItem('theme') || 'light';
-    document.body.setAttribute('data-theme', savedTheme);
-    document.getElementById('theme-toggle').checked = savedTheme === 'dark';
-}
-
-// Инициализация обработчиков событий
-function initEventListeners() {
-    // Переключение темы
-    document.getElementById('theme-toggle').addEventListener('change', function() {
-        const theme = this.checked ? 'dark' : 'light';
-        document.body.setAttribute('data-theme', theme);
-        localStorage.setItem('theme', theme);
-    });
-
-    // Формы
-    document.getElementById('facultyForm').addEventListener('submit', handleFacultySubmit);
-    document.getElementById('programForm').addEventListener('submit', handleProgramSubmit);
-    document.getElementById('groupForm').addEventListener('submit', handleGroupSubmit);
-    document.getElementById('studentForm').addEventListener('submit', handleStudentSubmit);
-}
-
-// Загрузка начальных данных
-function loadInitialData() {
-    loadFaculties();
-    getFaculties();
-    getPrograms();
-    getGroups();
-}
-
-// Навигация по вкладкам
-function openTab(tabName) {
-    // Скрыть все вкладки
-    document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
-    document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-
-    // Показать выбранную вкладку
-    document.querySelector(`.tab[onclick="openTab('${tabName}')"]`).classList.add('active');
-    document.getElementById(tabName).classList.add('active');
-}
-
-// Работа с модальными окнами
-function openModal(modalId, title = 'Добавить') {
-    document.getElementById(`${modalId}Title`).textContent = title;
-    document.getElementById(modalId).classList.add('active');
-    document.body.style.overflow = 'hidden';
-}
-
-function closeModal(modalId) {
-    document.getElementById(modalId).classList.remove('active');
-    document.body.style.overflow = 'auto';
-    resetForm(modalId.replace('Modal', 'Form'));
-}
-
-function resetForm(formId) {
-    const form = document.getElementById(formId);
-    form.reset();
-    const errorMessages = form.querySelectorAll('.error-message');
-    errorMessages.forEach(el => el.textContent = '');
-}
-
-// Показать сообщение
-function showResponse(elementId, message, type = 'success') {
-    const responseElement = document.getElementById(elementId);
-    responseElement.innerHTML = `<pre>${JSON.stringify(message, null, 2)}</pre>`;
-    responseElement.className = `response ${type}`;
-    setTimeout(() => {
-        responseElement.className = 'response';
-        responseElement.innerHTML = '';
-    }, 5000);
-}
-
-/* ========== Функции для работы с факультетами ========== */
-function loadFaculties() {
-    fetch(`${API_URL}/faculties/`)
-        .then(response => {
-            if (!response.ok) throw new Error('Ошибка загрузки факультетов');
-            return response.json();
-        })
-        .then(data => {
-            const select = document.getElementById('facultyFilter');
-            select.innerHTML = '<option value="">Выберите факультет</option>';
-            data.forEach(faculty => {
-                select.innerHTML += `<option value="${faculty.id}">${faculty.name}</option>`;
-            });
-        })
-        .catch(error => {
-            console.error('Error loading faculties:', error);
-            document.getElementById('facultyFilter').innerHTML = '<option value="">Ошибка загрузки</option>';
-        });
-}
-
-function openFacultyModal(faculty = null) {
-    if (faculty) {
-        document.getElementById('facultyModalTitle').textContent = 'Редактировать факультет';
-        document.getElementById('facultyId').value = faculty.id;
-        document.getElementById('facultyName').value = faculty.name;
-    } else {
-        document.getElementById('facultyModalTitle').textContent = 'Добавить факультет';
-        document.getElementById('facultyId').value = '';
-    }
-    openModal('facultyModal');
-}
-
-function handleFacultySubmit(e) {
-    e.preventDefault();
-
-    const id = document.getElementById('facultyId').value;
-    const name = document.getElementById('facultyName').value.trim();
-
-    // Валидация
-    if (!name) {
-        document.getElementById('facultyNameError').textContent = 'Название обязательно';
-        return;
-    }
-
-    const facultyData = { name };
-    const method = id ? 'PUT' : 'POST';
-    const url = id ? `${API_URL}/faculties/${id}` : `${API_URL}/faculties/`;
-
-    const submitBtn = document.getElementById('facultySubmitBtn');
-    submitBtn.disabled = true;
-    submitBtn.innerHTML = '<span class="loading"></span> Сохранение...';
-
-    fetch(url, {
-        method: method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(facultyData)
-    })
-    .then(response => {
-        if (!response.ok) throw new Error('Ошибка сохранения');
-        return response.json();
-    })
-    .then(data => {
-        showResponse('facultyResponse', data, 'success');
-        closeModal('facultyModal');
-        getFaculties();
-        loadFaculties(); // Обновляем список в фильтре
-    })
-    .catch(error => {
-        showResponse('facultyResponse', error, 'error');
-    })
-    .finally(() => {
-        submitBtn.disabled = false;
-        submitBtn.textContent = 'Сохранить';
-    });
-}
-
-function getFaculties() {
-    const facultiesList = document.getElementById('facultiesList');
-    facultiesList.innerHTML = '<p class="text-muted">Загрузка данных...</p>';
-
-    fetch(`${API_URL}/faculties/`)
-    .then(response => {
-        if (!response.ok) throw new Error('Ошибка загрузки');
-        return response.json();
-    })
-    .then(data => {
-        if (data.length === 0) {
-            facultiesList.innerHTML = '<p class="text-muted">Нет данных о факультетах</p>';
-            return;
-        }
-
-        let html = '<table><tr><th>ID</th><th>Название</th><th>Действия</th></tr>';
-        data.forEach(faculty => {
-            html += `
-                <tr>
-                    <td>${faculty.id}</td>
-                    <td>${faculty.name}</td>
-                    <td class="action-btns">
-                        <button class="action-btn" onclick="openFacultyModal(${JSON.stringify(faculty).replace(/"/g, '&quot;')})">Изменить</button>
-                        <button class="action-btn btn-danger" onclick="deleteFaculty(${faculty.id})">Удалить</button>
-                    </td>
-                </tr>
-            `;
-        });
-        html += '</table>';
-        facultiesList.innerHTML = html;
-    })
-    .catch(error => {
-        facultiesList.innerHTML = `<p class="text-muted">Ошибка загрузки: ${error.message}</p>`;
-    });
-}
-
-function deleteFaculty(id) {
-    if (confirm('Вы уверены, что хотите удалить этот факультет?')) {
-        fetch(`${API_URL}/faculties/${id}`, { method: 'DELETE' })
-        .then(response => {
-            if (!response.ok) throw new Error('Ошибка при удалении');
-            return response.json();
-        })
-        .then(() => {
-            showResponse('facultyResponse', { message: 'Факультет успешно удален' }, 'success');
-            getFaculties();
-            loadFaculties();
-        })
-        .catch(error => {
-            showResponse('facultyResponse', error, 'error');
-        });
-    }
-}
-
-/* ========== Функции для работы с программами ========== */
-function loadPrograms() {
-    const facultyId = document.getElementById('facultyFilter').value;
-    const programSelect = document.getElementById('programFilter');
-    const groupSelect = document.getElementById('groupFilter');
-
-    if (!facultyId) {
-        programSelect.disabled = true;
-        groupSelect.disabled = true;
-        programSelect.innerHTML = '<option value="">Выберите программу</option>';
-        groupSelect.innerHTML = '<option value="">Выберите группу</option>';
-        return;
-    }
-
-    fetch(`${API_URL}/faculties/${facultyId}/programs`)
-    .then(response => {
-        if (!response.ok) throw new Error('Ошибка загрузки программ');
-        return response.json();
-    })
-    .then(data => {
-        programSelect.innerHTML = '<option value="">Выберите программу</option>';
-        data.forEach(program => {
-            programSelect.innerHTML += `<option value="${program.id}">${program.name}</option>`;
-        });
-        programSelect.disabled = false;
-        groupSelect.disabled = true;
-        groupSelect.innerHTML = '<option value="">Выберите группу</option>';
-    })
-    .catch(error => {
-        console.error('Error loading programs:', error);
-        programSelect.innerHTML = '<option value="">Ошибка загрузки</option>';
-    });
-}
-
-function openProgramModal(program = null) {
-    if (program) {
-        document.getElementById('programModalTitle').textContent = 'Редактировать программу';
-        document.getElementById('programId').value = program.id;
-        document.getElementById('programName').value = program.name;
-        document.getElementById('programFacultyId').value = program.faculty_id;
-        document.getElementById('programEducationLevel').value = program.education_level;
-    } else {
-        document.getElementById('programModalTitle').textContent = 'Добавить программу';
-        document.getElementById('programId').value = '';
-    }
-    openModal('programModal');
-}
-
-function handleProgramSubmit(e) {
-    e.preventDefault();
-
-    const id = document.getElementById('programId').value;
-    const name = document.getElementById('programName').value.trim();
-    const faculty_id = parseInt(document.getElementById('programFacultyId').value);
-    const education_level = document.getElementById('programEducationLevel').value;
-
-    // Валидация
-    let isValid = true;
-    if (!name) {
-        document.getElementById('programNameError').textContent = 'Название обязательно';
-        isValid = false;
-    }
-    if (!faculty_id || isNaN(faculty_id)) {
-        document.getElementById('programFacultyIdError').textContent = 'ID факультета должен быть числом';
-        isValid = false;
-    }
-    if (!education_level) {
-        document.getElementById('programEducationLevelError').textContent = 'Уровень образования обязателен';
-        isValid = false;
-    }
-    if (!isValid) return;
-
-    const programData = { name, faculty_id, education_level };
-    const method = id ? 'PUT' : 'POST';
-    const url = id ? `${API_URL}/programs/${id}` : `${API_URL}/programs/`;
-
-    const submitBtn = document.getElementById('programSubmitBtn');
-    submitBtn.disabled = true;
-    submitBtn.innerHTML = '<span class="loading"></span> Сохранение...';
-
-    fetch(url, {
-        method: method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(programData)
-    })
-    .then(response => {
-        if (!response.ok) throw new Error('Ошибка сохранения');
-        return response.json();
-    })
-    .then(data => {
-        showResponse('programResponse', data, 'success');
-        closeModal('programModal');
-        getPrograms();
-        loadFaculties(); // Обновляем список факультетов в фильтре
-    })
-    .catch(error => {
-        showResponse('programResponse', error, 'error');
-    })
-    .finally(() => {
-        submitBtn.disabled = false;
-        submitBtn.textContent = 'Сохранить';
-    });
-}
-
-function getPrograms() {
-    const programsList = document.getElementById('programsList');
-    programsList.innerHTML = '<p class="text-muted">Загрузка данных...</p>';
-
-    fetch(`${API_URL}/programs/`)
-    .then(response => {
-        if (!response.ok) throw new Error('Ошибка загрузки');
-        return response.json();
-    })
-    .then(data => {
-        if (data.length === 0) {
-            programsList.innerHTML = '<p class="text-muted">Нет данных о программах</p>';
-            return;
-        }
-
-        let html = '<table><tr><th>ID</th><th>Название</th><th>ID факультета</th><th>Уровень</th><th>Действия</th></tr>';
-        data.forEach(program => {
-            html += `
-                <tr>
-                    <td>${program.id}</td>
-                    <td>${program.name}</td>
-                    <td>${program.faculty_id}</td>
-                    <td>${program.education_level}</td>
-                    <td class="action-btns">
-                        <button class="action-btn" onclick="openProgramModal(${JSON.stringify(program).replace(/"/g, '&quot;')})">Изменить</button>
-                        <button class="action-btn btn-danger" onclick="deleteProgram(${program.id})">Удалить</button>
-                    </td>
-                </tr>
-            `;
-        });
-        html += '</table>';
-        programsList.innerHTML = html;
-    })
-    .catch(error => {
-        programsList.innerHTML = `<p class="text-muted">Ошибка загрузки: ${error.message}</p>`;
-    });
-}
-
-function deleteProgram(id) {
-    if (confirm('Вы уверены, что хотите удалить эту программу?')) {
-        fetch(`${API_URL}/programs/${id}`, { method: 'DELETE' })
-        .then(response => {
-            if (!response.ok) throw new Error('Ошибка при удалении');
-            return response.json();
-        })
-        .then(() => {
-            showResponse('programResponse', { message: 'Программа успешно удалена' }, 'success');
-            getPrograms();
-        })
-        .catch(error => {
-            showResponse('programResponse', error, 'error');
-        });
-    }
-}
-
-/* ========== Функции для работы с группами ========== */
-function loadGroups() {
-    const programId = document.getElementById('programFilter').value;
-    const groupSelect = document.getElementById('groupFilter');
-
-    if (!programId) {
-        groupSelect.disabled = true;
-        groupSelect.innerHTML = '<option value="">Выберите группу</option>';
-        return;
-    }
-
-    fetch(`${API_URL}/programs/${programId}/groups`)
-    .then(response => {
-        if (!response.ok) throw new Error('Ошибка загрузки групп');
-        return response.json();
-    })
-    .then(data => {
-        groupSelect.innerHTML = '<option value="">Выберите группу</option>';
-        data.forEach(group => {
-            groupSelect.innerHTML += `<option value="${group.id}">${group.name}</option>`;
-        });
-        groupSelect.disabled = false;
-    })
-    .catch(error => {
-        console.error('Error loading groups:', error);
-        groupSelect.innerHTML = '<option value="">Ошибка загрузки</option>';
-    });
-}
-
-function openGroupModal(group = null) {
-    if (group) {
-        document.getElementById('groupModalTitle').textContent = 'Редактировать группу';
-        document.getElementById('groupId').value = group.id;
-        document.getElementById('groupName').value = group.name;
-        document.getElementById('groupProgramId').value = group.program_id;
-        document.getElementById('groupStudyForm').value = group.study_form;
-        document.getElementById('groupEducationLevel').value = group.education_level;
-    } else {
-        document.getElementById('groupModalTitle').textContent = 'Добавить группу';
-        document.getElementById('groupId').value = '';
-    }
-    openModal('groupModal');
-}
-
-function handleGroupSubmit(e) {
-    e.preventDefault();
-
-    const id = document.getElementById('groupId').value;
-    const name = document.getElementById('groupName').value.trim();
-    const program_id = parseInt(document.getElementById('groupProgramId').value);
-    const study_form = document.getElementById('groupStudyForm').value;
-    const education_level = document.getElementById('groupEducationLevel').value;
-
-    // Валидация
-    let isValid = true;
-    if (!name) {
-        document.getElementById('groupNameError').textContent = 'Название обязательно';
-        isValid = false;
-    }
-    if (!program_id || isNaN(program_id)) {
-        document.getElementById('groupProgramIdError').textContent = 'ID программы должен быть числом';
-        isValid = false;
-    }
-    if (!study_form) {
-        document.getElementById('groupStudyFormError').textContent = 'Форма обучения обязательна';
-        isValid = false;
-    }
-    if (!education_level) {
-        document.getElementById('groupEducationLevelError').textContent = 'Уровень образования обязателен';
-        isValid = false;
-    }
-    if (!isValid) return;
-
-    const groupData = { name, program_id, study_form, education_level };
-    const method = id ? 'PUT' : 'POST';
-    const url = id ? `${API_URL}/groups/${id}` : `${API_URL}/groups/`;
-
-    const submitBtn = document.getElementById('groupSubmitBtn');
-    submitBtn.disabled = true;
-    submitBtn.innerHTML = '<span class="loading"></span> Сохранение...';
-
-    fetch(url, {
-        method: method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(groupData)
-    })
-    .then(response => {
-        if (!response.ok) throw new Error('Ошибка сохранения');
-        return response.json();
-    })
-    .then(data => {
-        showResponse('groupResponse', data, 'success');
-        closeModal('groupModal');
-        getGroups();
-        loadFaculties(); // Обновляем списки фильтров
-    })
-    .catch(error => {
-        showResponse('groupResponse', error, 'error');
-    })
-    .finally(() => {
-        submitBtn.disabled = false;
-        submitBtn.textContent = 'Сохранить';
-    });
-}
-
-function getGroups() {
-    const groupsList = document.getElementById('groupsList');
-    groupsList.innerHTML = '<p class="text-muted">Загрузка данных...</p>';
-
-    fetch(`${API_URL}/groups/`)
-    .then(response => {
-        if (!response.ok) throw new Error('Ошибка загрузки');
-        return response.json();
-    })
-    .then(data => {
-        if (data.length === 0) {
-            groupsList.innerHTML = '<p class="text-muted">Нет данных о группах</p>';
-            return;
-        }
-
-        let html = '<table><tr><th>ID</th><th>Название</th><th>ID программы</th><th>Форма обучения</th><th>Уровень</th><th>Действия</th></tr>';
-        data.forEach(group => {
-            html += `
-                <tr>
-                    <td>${group.id}</td>
-                    <td>${group.name}</td>
-                    <td>${group.program_id}</td>
-                    <td>${group.study_form}</td>
-                    <td>${group.education_level}</td>
-                    <td class="action-btns">
-                        <button class="action-btn" onclick="openGroupModal(${JSON.stringify(group).replace(/"/g, '&quot;')})">Изменить</button>
-                        <button class="action-btn btn-danger" onclick="deleteGroup(${group.id})">Удалить</button>
-                    </td>
-                </tr>
-            `;
-        });
-        html += '</table>';
-        groupsList.innerHTML = html;
-    })
-    .catch(error => {
-        groupsList.innerHTML = `<p class="text-muted">Ошибка загрузки: ${error.message}</p>`;
-    });
-}
-
-function deleteGroup(id) {
-    if (confirm('Вы уверены, что хотите удалить эту группу?')) {
-        fetch(`${API_URL}/groups/${id}`, { method: 'DELETE' })
-        .then(response => {
-            if (!response.ok) throw new Error('Ошибка при удалении');
-            return response.json();
-        })
-        .then(() => {
-            showResponse('groupResponse', { message: 'Группа успешно удалена' }, 'success');
-            getGroups();
-        })
-        .catch(error => {
-            showResponse('groupResponse', error, 'error');
-        });
-    }
-}
-
-/* ========== Функции для работы со студентами ========== */
-function loadStudents() {
-    const groupId = document.getElementById('groupFilter').value;
-    const budgetFilter = document.getElementById('budgetFilter').value;
-    const statusFilter = document.getElementById('statusFilter').value;
-    const genderFilter = document.getElementById('genderFilter').value;
-
-    if (!groupId) {
-        document.getElementById('studentsList').innerHTML = '<p class="text-muted">Выберите группу</p>';
-        return;
-    }
-
-    let url = `${API_URL}/groups/${groupId}/students?`;
-    if (budgetFilter) url += `budget_contract=${budgetFilter}&`;
-    if (statusFilter) url += `status=${statusFilter}&`;
-    if (genderFilter) url += `gender=${genderFilter}`;
-
-    fetch(url)
-    .then(response => {
-        if (!response.ok) throw new Error('Ошибка загрузки студентов');
-        return response.json();
-    })
-    .then(data => {
-        renderStudentsTable(data);
-    })
-    .catch(error => {
-        console.error('Error loading students:', error);
-        document.getElementById('studentsList').innerHTML = '<p class="text-muted">Ошибка загрузки студентов</p>';
-    });
-}
-
-function applyFilters() {
-    loadStudents();
-}
-
-function renderStudentsTable(students) {
-    const studentsList = document.getElementById('studentsList');
-
-    if (students.length === 0) {
-        studentsList.innerHTML = '<p class="text-muted">Нет данных о студентах</p>';
-        return;
-    }
-
-    let html = '<table><tr><th>ID</th><th>ФИО</th><th>Группа</th><th>Статус</th><th>Основа</th><th>Действия</th></tr>';
-    students.forEach(student => {
-        const fullName = `${student.last_name} ${student.first_name} ${student.middle_name || ''}`;
-        html += `
-            <tr>
-                <td>${student.id}</td>
-                <td>${fullName}</td>
-                <td>${student.group_id}</td>
-                <td>${student.status}</td>
-                <td>${student.budget_contract}</td>
-                <td class="action-btns">
-                    <button class="action-btn" onclick="viewStudent(${student.id})">Просмотр</button>
-                    <button class="action-btn" onclick="openStudentModal(${JSON.stringify(student).replace(/"/g, '&quot;')})">Изменить</button>
-                    <button class="action-btn btn-danger" onclick="deleteStudent(${student.id})">Удалить</button>
-                </td>
-            </tr>
-        `;
-    });
-    html += '</table>';
-    studentsList.innerHTML = html;
-}
-
-function openStudentModal(student = null) {
-    if (student) {
-        document.getElementById('studentModalTitle').textContent = 'Редактировать студента';
-        document.getElementById('studentId').value = student.id;
-        document.getElementById('studentLastName').value = student.last_name;
-        document.getElementById('studentFirstName').value = student.first_name;
-        document.getElementById('studentMiddleName').value = student.middle_name || '';
-        document.getElementById('studentBirthDate').value = student.birth_date || '';
-        document.getElementById('studentEmail').value = student.email || '';
-        document.getElementById('studentPhone').value = student.phone_number || '';
-        document.getElementById('studentAddress').value = student.address || '';
-        document.getElementById('studentGender').value = student.gender || '';
-        document.getElementById('studentBudgetContract').value = student.budget_contract;
-        document.getElementById('studentStatus').value = student.status;
-        document.getElementById('studentGroupId').value = student.group_id;
-        document.getElementById('studentEducationLevel').value = student.education_level;
-    } else {
-        document.getElementById('studentModalTitle').textContent = 'Добавить студента';
-        document.getElementById('studentId').value = '';
-    }
-    openModal('studentModal');
-}
-
-function handleStudentSubmit(e) {
-    e.preventDefault();
-
-    const id = document.getElementById('studentId').value;
-    const studentData = {
-        last_name: document.getElementById('studentLastName').value.trim(),
-        first_name: document.getElementById('studentFirstName').value.trim(),
-        middle_name: document.getElementById('studentMiddleName').value.trim() || null,
-        birth_date: document.getElementById('studentBirthDate').value || null,
-        email: document.getElementById('studentEmail').value.trim() || null,
-        phone_number: document.getElementById('studentPhone').value.trim() || null,
-        address: document.getElementById('studentAddress').value.trim() || null,
-        gender: document.getElementById('studentGender').value || null,
-        budget_contract: document.getElementById('studentBudgetContract').value,
-        status: document.getElementById('studentStatus').value,
-        group_id: parseInt(document.getElementById('studentGroupId').value),
-        education_level: document.getElementById('studentEducationLevel').value
-    };
-
-    // Валидация
-    let isValid = true;
-    if (!studentData.last_name) {
-        document.getElementById('studentLastNameError').textContent = 'Фамилия обязательна';
-        isValid = false;
-    }
-    if (!studentData.first_name) {
-        document.getElementById('studentFirstNameError').textContent = 'Имя обязательно';
-        isValid = false;
-    }
-    if (studentData.email && !/^\S+@\S+\.\S+$/.test(studentData.email)) {
-        document.getElementById('studentEmailError').textContent = 'Неверный формат email';
-        isValid = false;
-    }
-    if (!studentData.budget_contract) {
-        document.getElementById('studentBudgetContractError').textContent = 'Основа обучения обязательна';
-        isValid = false;
-    }
-    if (!studentData.status) {
-        document.getElementById('studentStatusError').textContent = 'Статус обязателен';
-        isValid = false;
-    }
-    if (!studentData.group_id || isNaN(studentData.group_id)) {
-        document.getElementById('studentGroupIdError').textContent = 'ID группы должен быть числом';
-        isValid = false;
-    }
-    if (!studentData.education_level) {
-        document.getElementById('studentEducationLevelError').textContent = 'Уровень образования обязателен';
-        isValid = false;
-    }
-    if (!isValid) return;
-
-    const method = id ? 'PUT' : 'POST';
-    const url = id ? `${API_URL}/students/${id}` : `${API_URL}/students/`;
-
-    const submitBtn = document.getElementById('studentSubmitBtn');
-    submitBtn.disabled = true;
-    submitBtn.innerHTML = '<span class="loading"></span> Сохранение...';
-
-    fetch(url, {
-        method: method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(studentData)
-    })
-    .then(response => {
-        if (!response.ok) throw new Error('Ошибка сохранения');
-        return response.json();
-    })
-    .then(data => {
-        showResponse('studentResponse', data, 'success');
-        closeModal('studentModal');
-        loadStudents();
-    })
-    .catch(error => {
-        showResponse('studentResponse', error, 'error');
-    })
-    .finally(() => {
-        submitBtn.disabled = false;
-        submitBtn.textContent = 'Сохранить';
-    });
-}
-
-function viewStudent(id) {
-    fetch(`${API_URL}/students/${id}`)
-    .then(response => {
-        if (!response.ok) throw new Error('Ошибка загрузки данных студента');
-        return response.json();
-    })
-    .then(data => {
-        const modal = document.createElement('div');
-        modal.className = 'modal active';
-        modal.innerHTML = `
-            <div class="modal-content" style="max-width: 500px;">
-                <div class="modal-header">
-                    <h3 class="modal-title">Информация о студенте</h3>
-                    <button class="modal-close" onclick="this.closest('.modal').remove(); document.body.style.overflow = 'auto';">&times;</button>
-                </div>
-                <div class="modal-body">
-                    <p><strong>ФИО:</strong> ${data.last_name} ${data.first_name} ${data.middle_name || ''}</p>
-                    <p><strong>Дата рождения:</strong> ${data.birth_date || 'не указана'}</p>
-                    <p><strong>Email:</strong> ${data.email || 'не указан'}</p>
-                    <p><strong>Телефон:</strong> ${data.phone_number || 'не указан'}</p>
-                    <p><strong>Адрес:</strong> ${data.address || 'не указан'}</p>
-                    <p><strong>Пол:</strong> ${data.gender === 'М' ? 'Мужской' : data.gender === 'Ж' ? 'Женский' : 'не указан'}</p>
-                    <p><strong>Основа обучения:</strong> ${data.budget_contract}</p>
-                    <p><strong>Статус:</strong> ${data.status}</p>
-                    <p><strong>ID группы:</strong> ${data.group_id}</p>
-                    <p><strong>Уровень образования:</strong> ${data.education_level}</p>
-                </div>
-                <div class="modal-footer">
-                    <button class="btn-outline" onclick="this.closest('.modal').remove(); document.body.style.overflow = 'auto';">Закрыть</button>
+    <!-- Модальное окно для создания факультета -->
+    <div id="facultyModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Добавить факультет</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="facultyName">Название факультета</label>
+                    <input type="text" id="facultyName" required>
+                    <div class="error-message" id="facultyNameError"></div>
                 </div>
             </div>
-        `;
-        document.body.appendChild(modal);
-        document.body.style.overflow = 'hidden';
-    })
-    .catch(error => {
-        alert('Ошибка при загрузке данных студента: ' + error.message);
-    });
-}
+            <div class="modal-footer">
+                <button class="btn-outline modal-close">Отмена</button>
+                <button class="btn-primary" id="saveFacultyBtn">Сохранить</button>
+            </div>
+        </div>
+    </div>
 
-function deleteStudent(id) {
-    if (confirm('Вы уверены, что хотите удалить этого студента?')) {
-        fetch(`${API_URL}/students/${id}`, { method: 'DELETE' })
-        .then(response => {
-            if (!response.ok) throw new Error('Ошибка при удалении');
-            return response.json();
-        })
-        .then(() => {
-            showResponse('studentResponse', { message: 'Студент успешно удален' }, 'success');
-            loadStudents();
-        })
-        .catch(error => {
-            showResponse('studentResponse', error, 'error');
+    <!-- Скрытый input для импорта -->
+    <input type="file" id="fileInput" accept=".xlsx,.xls" style="display: none;">
+
+    <script>
+    // Конфигурация API
+    const API_BASE_URL = 'http://127.0.0.1:8140';
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // DOM элементы
+        const facultySelect = document.getElementById('faculty');
+        const programSelect = document.getElementById('program');
+        const groupSelect = document.getElementById('group');
+        const statusSelect = document.getElementById('status');
+        const studentsList = document.getElementById('students-list');
+        const loadingElement = document.getElementById('loading');
+        const emptyStateElement = document.getElementById('empty-state');
+
+        // Кнопки
+        const createStudentBtn = document.getElementById('createStudentBtn');
+        const createGroupBtn = document.getElementById('createGroupBtn');
+        const createProgramBtn = document.getElementById('createProgramBtn');
+        const createFacultyBtn = document.getElementById('createFacultyBtn');
+        const exportBtn = document.getElementById('exportBtn');
+        const importBtn = document.getElementById('importBtn');
+        const fileInput = document.getElementById('fileInput');
+
+        // Модальные окна
+        const studentModal = document.getElementById('studentModal');
+        const groupModal = document.getElementById('groupModal');
+        const programModal = document.getElementById('programModal');
+        const facultyModal = document.getElementById('facultyModal');
+
+        // Кнопки закрытия модальных окон
+        const modalCloseBtns = document.querySelectorAll('.modal-close');
+
+        // Кнопки сохранения
+        const saveStudentBtn = document.getElementById('saveStudentBtn');
+        const saveGroupBtn = document.getElementById('saveGroupBtn');
+        const saveProgramBtn = document.getElementById('saveProgramBtn');
+        const saveFacultyBtn = document.getElementById('saveFacultyBtn');
+
+        // Инициализация модальных окон
+        function initModals() {
+            // Закрытие модальных окон
+            modalCloseBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    closeAllModals();
+                });
+            });
+
+            // Закрытие при клике вне модального окна
+            [studentModal, groupModal, programModal, facultyModal].forEach(modal => {
+                modal.addEventListener('click', function(e) {
+                    if (e.target === modal) {
+                        closeAllModals();
+                    }
+                });
+            });
+        }
+
+        function openModal(modal) {
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeAllModals() {
+            [studentModal, groupModal, programModal, facultyModal].forEach(modal => {
+                modal.style.display = 'none';
+            });
+            document.body.style.overflow = 'auto';
+            clearModalErrors();
+        }
+
+        function clearModalErrors() {
+            document.querySelectorAll('.error-message').forEach(el => {
+                el.textContent = '';
+            });
+        }
+
+        // Функции для работы с API
+        async function fetchData(endpoint) {
+            try {
+                const response = await fetch(`${API_BASE_URL}${endpoint}`);
+                if (!response.ok) {
+                    throw new Error('Ошибка загрузки данных');
+                }
+                return await response.json();
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Произошла ошибка при загрузке данных');
+                return null;
+            }
+        }
+
+        async function postData(endpoint, data) {
+            try {
+                const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.detail || 'Ошибка при сохранении данных');
+                }
+
+                return await response.json();
+            } catch (error) {
+                console.error('Error:', error);
+                throw error;
+            }
+        }
+
+        // Функции загрузки данных
+        async function loadFaculties() {
+            const faculties = await fetchData('/faculties/');
+            if (faculties) {
+                facultySelect.innerHTML = '<option value="">Все факультеты</option>';
+                faculties.forEach(faculty => {
+                    const option = document.createElement('option');
+                    option.value = faculty.id;
+                    option.textContent = faculty.name;
+                    facultySelect.appendChild(option);
+                });
+            }
+        }
+
+        async function loadPrograms(facultyId) {
+            const programs = await fetchData(`/faculties/${facultyId}/programs`);
+            if (programs) {
+                programSelect.innerHTML = '<option value="">Все направления</option>';
+                programs.forEach(program => {
+                    const option = document.createElement('option');
+                    option.value = program.id;
+                    option.textContent = program.name;
+                    programSelect.appendChild(option);
+                });
+                loadStudents();
+            }
+        }
+
+        async function loadGroups(programId) {
+            const groups = await fetchData(`/programs/${programId}/groups`);
+            if (groups) {
+                groupSelect.innerHTML = '<option value="">Все группы</option>';
+                groups.forEach(group => {
+                    const option = document.createElement('option');
+                    option.value = group.id;
+                    option.textContent = group.name;
+                    groupSelect.appendChild(option);
+                });
+                loadStudents();
+            }
+        }
+
+        async function loadStudents() {
+            showLoading();
+
+            const facultyId = facultySelect.value;
+            const programId = programSelect.value;
+            const groupId = groupSelect.value;
+            const status = statusSelect.value;
+
+            let endpoint = '/students/';
+
+            if (groupId) {
+                endpoint = `/groups/${groupId}/students`;
+                if (status) {
+                    endpoint += `?status=${status}`;
+                }
+            } else if (programId) {
+                const groups = await fetchData(`/programs/${programId}/groups`);
+                if (groups && groups.length > 0) {
+                    const groupIds = groups.map(g => g.id).join(',');
+                    endpoint = `/students/?group_id=${groupIds}`;
+                    if (status) {
+                        endpoint += `&status=${status}`;
+                    }
+                } else {
+                    showEmptyState();
+                    return;
+                }
+            } else if (facultyId) {
+                const programs = await fetchData(`/faculties/${facultyId}/programs`);
+                if (programs && programs.length > 0) {
+                    const programIds = programs.map(p => p.id).join(',');
+                    const groups = await Promise.all(
+                        programs.map(p => fetchData(`/programs/${p.id}/groups`))
+                    );
+                    const groupIds = groups.flat().map(g => g.id).join(',');
+
+                    if (groupIds) {
+                        endpoint = `/students/?group_id=${groupIds}`;
+                        if (status) {
+                            endpoint += `&status=${status}`;
+                        }
+                    } else {
+                        showEmptyState();
+                        return;
+                    }
+                } else {
+                    showEmptyState();
+                    return;
+                }
+            } else if (status) {
+                endpoint += `?status=${status}`;
+            }
+
+            const students = await fetchData(endpoint);
+            hideLoading();
+
+            if (students && students.length > 0) {
+                renderStudents(students);
+            } else {
+                showEmptyState();
+            }
+        }
+
+        function renderStudents(students) {
+            studentsList.innerHTML = '';
+            emptyStateElement.style.display = 'none';
+
+            students.forEach(student => {
+                const row = document.createElement('tr');
+
+                const groupInfo = student.group ? student.group.name : 'Не указано';
+                const programInfo = student.group && student.group.program ?
+                    student.group.program.name : 'Не указано';
+                const facultyInfo = student.group && student.group.program && student.group.program.faculty ?
+                    student.group.program.faculty.name : 'Не указано';
+
+                let statusClass = '';
+                let statusText = student.status;
+
+                if (student.status === 'учится') {
+                    statusClass = 'status-studying';
+                } else if (student.status === 'академический отпуск') {
+                    statusClass = 'status-leave';
+                    statusText = 'Академ';
+                } else if (student.status === 'отчислен') {
+                    statusClass = 'status-expelled';
+                }
+
+                row.innerHTML = `
+                    <td>${student.last_name} ${student.first_name} ${student.middle_name || ''}</td>
+                    <td>${groupInfo}</td>
+                    <td>${programInfo}</td>
+                    <td>${facultyInfo}</td>
+                    <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                    <td>${student.education_level}</td>
+                `;
+
+                studentsList.appendChild(row);
+            });
+        }
+
+        function showLoading() {
+            loadingElement.style.display = 'flex';
+            studentsList.innerHTML = '';
+            emptyStateElement.style.display = 'none';
+        }
+
+        function hideLoading() {
+            loadingElement.style.display = 'none';
+        }
+
+        function showEmptyState() {
+            studentsList.innerHTML = '';
+            emptyStateElement.style.display = 'block';
+        }
+
+        // Функции создания сущностей
+        async function createStudent() {
+            try {
+                const studentData = {
+                    last_name: document.getElementById('studentLastName').value,
+                    first_name: document.getElementById('studentFirstName').value,
+                    middle_name: document.getElementById('studentMiddleName').value,
+                    birth_date: document.getElementById('studentBirthDate').value || null,
+                    email: document.getElementById('studentEmail').value || null,
+                    phone_number: document.getElementById('studentPhone').value || null,
+                    address: document.getElementById('studentAddress').value || null,
+                    gender: document.getElementById('studentGender').value || null,
+                    budget_contract: document.getElementById('studentBudget').value,
+                    status: document.getElementById('studentStatus').value,
+                    group_id: parseInt(document.getElementById('studentGroup').value),
+                    education_level: document.getElementById('studentEducationLevel').value
+                };
+
+                // Валидация
+                if (!studentData.last_name) {
+                    document.getElementById('lastNameError').textContent = 'Введите фамилию';
+                    return;
+                }
+
+                if (!studentData.first_name) {
+                    document.getElementById('firstNameError').textContent = 'Введите имя';
+                    return;
+                }
+
+                if (!studentData.group_id) {
+                    document.getElementById('groupError').textContent = 'Выберите группу';
+                    return;
+                }
+
+                const result = await postData('/students/', studentData);
+                if (result) {
+                    closeAllModals();
+                    loadStudents();
+                    resetStudentForm();
+                }
+            } catch (error) {
+                console.error('Error creating student:', error);
+                alert(`Ошибка при создании студента: ${error.message}`);
+            }
+        }
+
+        async function createGroup() {
+            try {
+                const groupData = {
+                    name: document.getElementById('groupName').value,
+                    program_id: parseInt(document.getElementById('groupProgram').value),
+                    study_form: document.getElementById('groupStudyForm').value,
+                    education_level: document.getElementById('groupEducationLevel').value
+                };
+
+                // Валидация
+                if (!groupData.name) {
+                    document.getElementById('groupNameError').textContent = 'Введите название группы';
+                    return;
+                }
+
+                if (!groupData.program_id) {
+                    document.getElementById('groupProgramError').textContent = 'Выберите направление';
+                    return;
+                }
+
+                const result = await postData('/groups/', groupData);
+                if (result) {
+                    closeAllModals();
+                    resetGroupForm();
+
+                    // Обновляем список групп, если выбрано соответствующее направление
+                    if (programSelect.value == groupData.program_id) {
+                        loadGroups(groupData.program_id);
+                    }
+                }
+            } catch (error) {
+                console.error('Error creating group:', error);
+                alert(`Ошибка при создании группы: ${error.message}`);
+            }
+        }
+
+        async function createProgram() {
+            try {
+                const programData = {
+                    name: document.getElementById('programName').value,
+                    faculty_id: parseInt(document.getElementById('programFaculty').value),
+                    education_level: document.getElementById('programEducationLevel').value
+                };
+
+                // Валидация
+                if (!programData.name) {
+                    document.getElementById('programNameError').textContent = 'Введите название направления';
+                    return;
+                }
+
+                if (!programData.faculty_id) {
+                    document.getElementById('programFacultyError').textContent = 'Выберите факультет';
+                    return;
+                }
+
+                const result = await postData('/programs/', programData);
+                if (result) {
+                    closeAllModals();
+                    resetProgramForm();
+
+                    // Обновляем список направлений, если выбран соответствующий факультет
+                    if (facultySelect.value == programData.faculty_id) {
+                        loadPrograms(programData.faculty_id);
+                    }
+                }
+            } catch (error) {
+                console.error('Error creating program:', error);
+                alert(`Ошибка при создании направления: ${error.message}`);
+            }
+        }
+
+        async function createFaculty() {
+            try {
+                const facultyData = {
+                    name: document.getElementById('facultyName').value
+                };
+
+                // Валидация
+                if (!facultyData.name) {
+                    document.getElementById('facultyNameError').textContent = 'Введите название факультета';
+                    return;
+                }
+
+                const result = await postData('/faculties/', facultyData);
+                if (result) {
+                    closeAllModals();
+                    resetFacultyForm();
+                    loadFaculties();
+                }
+            } catch (error) {
+                console.error('Error creating faculty:', error);
+                alert(`Ошибка при создании факультета: ${error.message}`);
+            }
+        }
+
+        // Сброс форм
+        function resetStudentForm() {
+            document.getElementById('studentLastName').value = '';
+            document.getElementById('studentFirstName').value = '';
+            document.getElementById('studentMiddleName').value = '';
+            document.getElementById('studentBirthDate').value = '';
+            document.getElementById('studentEmail').value = '';
+            document.getElementById('studentPhone').value = '';
+            document.getElementById('studentAddress').value = '';
+            document.getElementById('studentGender').value = '';
+            document.getElementById('studentBudget').value = 'бюджет';
+            document.getElementById('studentStatus').value = 'учится';
+            document.getElementById('studentGroup').value = '';
+            document.getElementById('studentEducationLevel').value = 'бакалавриат';
+            clearModalErrors();
+        }
+
+        function resetGroupForm() {
+            document.getElementById('groupName').value = '';
+            document.getElementById('groupProgram').value = '';
+            document.getElementById('groupStudyForm').value = 'очно';
+            document.getElementById('groupEducationLevel').value = 'бакалавриат';
+            clearModalErrors();
+        }
+
+        function resetProgramForm() {
+            document.getElementById('programName').value = '';
+            document.getElementById('programFaculty').value = '';
+            document.getElementById('programEducationLevel').value = 'бакалавриат';
+            clearModalErrors();
+        }
+
+        function resetFacultyForm() {
+            document.getElementById('facultyName').value = '';
+            clearModalErrors();
+        }
+
+        // Экспорт/импорт
+        function exportData() {
+            const facultyId = facultySelect.value;
+            const programId = programSelect.value;
+            const groupId = groupSelect.value;
+
+            let entityType = 'student';
+
+            if (groupId) {
+                entityType = 'student';
+            } else if (programId) {
+                entityType = 'group';
+            } else if (facultyId) {
+                entityType = 'program';
+            }
+
+            window.open(`${API_BASE_URL}/export/excel/?entity_type=${entityType}&include_ids=true`, '_blank');
+        }
+
+        async function importData(file) {
+            try {
+                const formData = new FormData();
+                formData.append('file', file);
+
+                const response = await fetch(`${API_BASE_URL}/import/excel/`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error('Ошибка импорта данных');
+                }
+
+                const result = await response.json();
+                alert(`Импорт завершен\nУспешно: ${result.imported_records}\nПропущено: ${result.skipped_records}`);
+
+                // Обновляем данные
+                loadFaculties();
+                loadStudents();
+            } catch (error) {
+                console.error('Error importing data:', error);
+                alert(`Ошибка при импорте данных: ${error.message}`);
+            }
+        }
+
+        // Инициализация
+        initModals();
+
+        // Обработчики событий для фильтров
+        facultySelect.addEventListener('change', function() {
+            programSelect.disabled = !this.value;
+            programSelect.innerHTML = '<option value="">Все направления</option>';
+            groupSelect.innerHTML = '<option value="">Все группы</option>';
+            groupSelect.disabled = true;
+
+            if (this.value) {
+                loadPrograms(this.value);
+            } else {
+                loadStudents();
+            }
         });
-    }
-}
+
+        programSelect.addEventListener('change', function() {
+            groupSelect.disabled = !this.value;
+            groupSelect.innerHTML = '<option value="">Все группы</option>';
+
+            if (this.value) {
+                loadGroups(this.value);
+            } else {
+                loadStudents();
+            }
+        });
+
+        groupSelect.addEventListener('change', function() {
+            loadStudents();
+        });
+
+        statusSelect.addEventListener('change', function() {
+            loadStudents();
+        });
+
+        // Обработчики для кнопок создания
+        createStudentBtn.addEventListener('click', function() {
+            fetchData('/groups/').then(groups => {
+                const groupSelect = document.getElementById('studentGroup');
+                groupSelect.innerHTML = '<option value="">Выберите группу</option>';
+
+                groups.forEach(group => {
+                    const option = document.createElement('option');
+                    option.value = group.id;
+                    option.textContent = group.name;
+                    groupSelect.appendChild(option);
+                });
+
+                openModal(studentModal);
+            });
+        });
+
+        createGroupBtn.addEventListener('click', function() {
+            fetchData('/programs/').then(programs => {
+                const programSelect = document.getElementById('groupProgram');
+                programSelect.innerHTML = '<option value="">Выберите направление</option>';
+
+                programs.forEach(program => {
+                    const option = document.createElement('option');
+                    option.value = program.id;
+                    option.textContent = program.name;
+                    programSelect.appendChild(option);
+                });
+
+                openModal(groupModal);
+            });
+        });
+
+        createProgramBtn.addEventListener('click', function() {
+            fetchData('/faculties/').then(faculties => {
+                const facultySelect = document.getElementById('programFaculty');
+                facultySelect.innerHTML = '<option value="">Выберите факультет</option>';
+
+                faculties.forEach(faculty => {
+                    const option = document.createElement('option');
+                    option.value = faculty.id;
+                    option.textContent = faculty.name;
+                    facultySelect.appendChild(option);
+                });
+
+                openModal(programModal);
+            });
+        });
+
+        createFacultyBtn.addEventListener('click', function() {
+            openModal(facultyModal);
+        });
+
+        // Обработчики для экспорта/импорта
+        exportBtn.addEventListener('click', function() {
+            exportData();
+        });
+
+        importBtn.addEventListener('click', function() {
+            fileInput.click();
+        });
+
+        fileInput.addEventListener('change', function() {
+            if (this.files.length > 0) {
+                importData(this.files[0]);
+            }
+        });
+
+        // Обработчики для сохранения данных
+        saveStudentBtn.addEventListener('click', function() {
+            createStudent();
+        });
+
+        saveGroupBtn.addEventListener('click', function() {
+            createGroup();
+        });
+
+        saveProgramBtn.addEventListener('click', function() {
+            createProgram();
+        });
+
+        saveFacultyBtn.addEventListener('click', function() {
+            createFaculty();
+        });
+
+        // Загрузка начальных данных
+        loadFaculties();
+        loadStudents();
+    });
 </script>
 </body>
 </html>
-
