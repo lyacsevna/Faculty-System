@@ -494,6 +494,7 @@
 
         .mb-3 {
             margin-bottom: 1rem;
+
         }
 
         .mt-3 {
@@ -591,14 +592,67 @@
 
     <div class="container">
         <div class="tabs">
-            <div class="tab active" onclick="openTab('faculties')">Факультеты</div>
+            <div class="tab active" onclick="openTab('students')">Студенты</div>
+            <div class="tab" onclick="openTab('faculties')">Факультеты</div>
             <div class="tab" onclick="openTab('programs')">Программы</div>
             <div class="tab" onclick="openTab('groups')">Группы</div>
-            <div class="tab" onclick="openTab('students')">Студенты</div>
+        </div>
+
+        <!-- Студенты -->
+        <div id="students" class="tab-content active">
+            <div class="card">
+                <div class="d-flex justify-between align-center mb-3">
+                    <h2>Создать студента</h2>
+                    <button class="btn-outline" onclick="openStudentModal()">+ Добавить студента</button>
+                </div>
+                <div class="response" id="studentResponse"></div>
+            </div>
+
+            <div class="card">
+                <div class="d-flex justify-between align-center mb-3">
+                    <h2>Список студентов</h2>
+                    <div>
+                        <select id="facultyFilter" onchange="loadPrograms()" class="mr-2">
+                            <option value="">Выберите факультет</option>
+                        </select>
+                        <select id="programFilter" onchange="loadGroups()" class="mr-2" disabled>
+                            <option value="">Выберите программу</option>
+                        </select>
+                        <select id="groupFilter" onchange="loadStudents()" class="mr-2" disabled>
+                            <option value="">Выберите группу</option>
+                        </select>
+                        <button onclick="loadStudents()">Обновить</button>
+                    </div>
+                </div>
+
+                <div class="filters mb-3">
+                    <select id="budgetFilter" onchange="applyFilters()" class="mr-2">
+                        <option value="">Все формы обучения</option>
+                        <option value="бюджет">Бюджет</option>
+                        <option value="контракт">Контракт</option>
+                    </select>
+                    <select id="statusFilter" onchange="applyFilters()" class="mr-2">
+                        <option value="">Все статусы</option>
+                        <option value="учится">Учится</option>
+                        <option value="академический отпуск">Академотпуск</option>
+                        <option value="отчислен">Отчислен</option>
+                        <option value="восстановился">Восстановился</option>
+                    </select>
+                    <select id="genderFilter" onchange="applyFilters()" class="mr-2">
+                        <option value="">Все</option>
+                        <option value="М">Мужской</option>
+                        <option value="Ж">Женский</option>
+                    </select>
+                </div>
+
+                <div id="studentsList" class="text-center">
+                    <p class="text-muted">Выберите факультет, программу и группу</p>
+                </div>
+            </div>
         </div>
 
         <!-- Факультеты -->
-        <div id="faculties" class="tab-content active">
+        <div id="faculties" class="tab-content">
             <div class="card">
                 <div class="d-flex justify-between align-center mb-3">
                     <h2>Создать факультет</h2>
@@ -659,30 +713,8 @@
                 </div>
             </div>
         </div>
-
-        <!-- Студенты -->
-        <div id="students" class="tab-content">
-            <div class="card">
-                <div class="d-flex justify-between align-center mb-3">
-                    <h2>Создать студента</h2>
-                    <button class="btn-outline" onclick="openStudentModal()">+ Добавить студента</button>
-                </div>
-                <div class="response" id="studentResponse"></div>
-            </div>
-
-            <div class="card">
-                <div class="d-flex justify-between align-center mb-3">
-                    <h2>Список студентов</h2>
-                    <button onclick="getStudents()">Обновить список</button>
-                </div>
-                <div id="studentsList" class="text-center">
-                    <p class="text-muted">Загрузка данных...</p>
-                </div>
-            </div>
-        </div>
     </div>
-
-    <!-- Модальное окно для факультетов -->
+     <!-- Модальное окно для факультетов -->
     <div id="facultyModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -908,703 +940,764 @@
     </div>
 
     <script>
-    const API_URL = 'http://127.0.0.1:8010';
+const API_URL = 'http://127.0.0.1:8101';
 
-    // Инициализация при загрузке страницы
-    document.addEventListener('DOMContentLoaded', function() {
-        // Загрузка сохраненной темы
-        loadTheme();
+// Инициализация при загрузке страницы
+document.addEventListener('DOMContentLoaded', function() {
+    loadTheme();
+    initEventListeners();
+    loadInitialData();
+});
 
-        // Инициализация обработчиков событий
-        initEventListeners();
+// Загрузка темы из localStorage
+function loadTheme() {
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    document.body.setAttribute('data-theme', savedTheme);
+    document.getElementById('theme-toggle').checked = savedTheme === 'dark';
+}
 
-        // Загрузка начальных данных
-        loadInitialData();
+// Инициализация обработчиков событий
+function initEventListeners() {
+    // Переключение темы
+    document.getElementById('theme-toggle').addEventListener('change', function() {
+        const theme = this.checked ? 'dark' : 'light';
+        document.body.setAttribute('data-theme', theme);
+        localStorage.setItem('theme', theme);
     });
 
-    // Загрузка сохраненной темы из localStorage
-    function loadTheme() {
-        const savedTheme = localStorage.getItem('theme') || 'light';
-        document.body.setAttribute('data-theme', savedTheme);
-        document.getElementById('theme-toggle').checked = savedTheme === 'dark';
-    }
+    // Формы
+    document.getElementById('facultyForm').addEventListener('submit', handleFacultySubmit);
+    document.getElementById('programForm').addEventListener('submit', handleProgramSubmit);
+    document.getElementById('groupForm').addEventListener('submit', handleGroupSubmit);
+    document.getElementById('studentForm').addEventListener('submit', handleStudentSubmit);
+}
 
-    // Инициализация обработчиков событий
-    function initEventListeners() {
-        // Переключение темы
-        document.getElementById('theme-toggle').addEventListener('change', function() {
-            const theme = this.checked ? 'dark' : 'light';
-            document.body.setAttribute('data-theme', theme);
-            localStorage.setItem('theme', theme);
+// Загрузка начальных данных
+function loadInitialData() {
+    loadFaculties();
+    getFaculties();
+    getPrograms();
+    getGroups();
+}
+
+// Навигация по вкладкам
+function openTab(tabName) {
+    // Скрыть все вкладки
+    document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+    // Показать выбранную вкладку
+    document.querySelector(`.tab[onclick="openTab('${tabName}')"]`).classList.add('active');
+    document.getElementById(tabName).classList.add('active');
+}
+
+// Работа с модальными окнами
+function openModal(modalId, title = 'Добавить') {
+    document.getElementById(`${modalId}Title`).textContent = title;
+    document.getElementById(modalId).classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeModal(modalId) {
+    document.getElementById(modalId).classList.remove('active');
+    document.body.style.overflow = 'auto';
+    resetForm(modalId.replace('Modal', 'Form'));
+}
+
+function resetForm(formId) {
+    const form = document.getElementById(formId);
+    form.reset();
+    const errorMessages = form.querySelectorAll('.error-message');
+    errorMessages.forEach(el => el.textContent = '');
+}
+
+// Показать сообщение
+function showResponse(elementId, message, type = 'success') {
+    const responseElement = document.getElementById(elementId);
+    responseElement.innerHTML = `<pre>${JSON.stringify(message, null, 2)}</pre>`;
+    responseElement.className = `response ${type}`;
+    setTimeout(() => {
+        responseElement.className = 'response';
+        responseElement.innerHTML = '';
+    }, 5000);
+}
+
+/* ========== Функции для работы с факультетами ========== */
+function loadFaculties() {
+    fetch(`${API_URL}/faculties/`)
+        .then(response => {
+            if (!response.ok) throw new Error('Ошибка загрузки факультетов');
+            return response.json();
+        })
+        .then(data => {
+            const select = document.getElementById('facultyFilter');
+            select.innerHTML = '<option value="">Выберите факультет</option>';
+            data.forEach(faculty => {
+                select.innerHTML += `<option value="${faculty.id}">${faculty.name}</option>`;
+            });
+        })
+        .catch(error => {
+            console.error('Error loading faculties:', error);
+            document.getElementById('facultyFilter').innerHTML = '<option value="">Ошибка загрузки</option>';
         });
+}
 
-        // Форма факультета
-        document.getElementById('facultyForm').addEventListener('submit', handleFacultySubmit);
+function openFacultyModal(faculty = null) {
+    if (faculty) {
+        document.getElementById('facultyModalTitle').textContent = 'Редактировать факультет';
+        document.getElementById('facultyId').value = faculty.id;
+        document.getElementById('facultyName').value = faculty.name;
+    } else {
+        document.getElementById('facultyModalTitle').textContent = 'Добавить факультет';
+        document.getElementById('facultyId').value = '';
+    }
+    openModal('facultyModal');
+}
 
-        // Форма программы
-        document.getElementById('programForm').addEventListener('submit', handleProgramSubmit);
+function handleFacultySubmit(e) {
+    e.preventDefault();
 
-        // Форма группы
-        document.getElementById('groupForm').addEventListener('submit', handleGroupSubmit);
+    const id = document.getElementById('facultyId').value;
+    const name = document.getElementById('facultyName').value.trim();
 
-        // Форма студента
-        document.getElementById('studentForm').addEventListener('submit', handleStudentSubmit);
+    // Валидация
+    if (!name) {
+        document.getElementById('facultyNameError').textContent = 'Название обязательно';
+        return;
     }
 
-    // Загрузка начальных данных
-    function loadInitialData() {
+    const facultyData = { name };
+    const method = id ? 'PUT' : 'POST';
+    const url = id ? `${API_URL}/faculties/${id}` : `${API_URL}/faculties/`;
+
+    const submitBtn = document.getElementById('facultySubmitBtn');
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<span class="loading"></span> Сохранение...';
+
+    fetch(url, {
+        method: method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(facultyData)
+    })
+    .then(response => {
+        if (!response.ok) throw new Error('Ошибка сохранения');
+        return response.json();
+    })
+    .then(data => {
+        showResponse('facultyResponse', data, 'success');
+        closeModal('facultyModal');
         getFaculties();
-        getPrograms();
-        getGroups();
-        getStudents();
-    }
+        loadFaculties(); // Обновляем список в фильтре
+    })
+    .catch(error => {
+        showResponse('facultyResponse', error, 'error');
+    })
+    .finally(() => {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Сохранить';
+    });
+}
 
-    // Навигация по вкладкам
-    function openTab(tabName) {
-        const tabs = document.getElementsByClassName('tab');
-        for (let i = 0; i < tabs.length; i++) {
-            tabs[i].classList.remove('active');
-        }
+function getFaculties() {
+    const facultiesList = document.getElementById('facultiesList');
+    facultiesList.innerHTML = '<p class="text-muted">Загрузка данных...</p>';
 
-        const tabContents = document.getElementsByClassName('tab-content');
-        for (let i = 0; i < tabContents.length; i++) {
-            tabContents[i].classList.remove('active');
-        }
-
-        document.querySelector(`.tab[onclick="openTab('${tabName}')"]`).classList.add('active');
-        document.getElementById(tabName).classList.add('active');
-    }
-
-    // Работа с модальными окнами
-    function openModal(modalId, title = 'Добавить') {
-        document.getElementById(`${modalId}Title`).textContent = title;
-        document.getElementById(modalId).classList.add('active');
-        document.body.style.overflow = 'hidden';
-    }
-
-    function closeModal(modalId) {
-        document.getElementById(modalId).classList.remove('active');
-        document.body.style.overflow = 'auto';
-        resetForm(modalId.replace('Modal', 'Form'));
-    }
-
-    function resetForm(formId) {
-        const form = document.getElementById(formId);
-        form.reset();
-        const errorMessages = form.querySelectorAll('.error-message');
-        errorMessages.forEach(el => el.textContent = '');
-    }
-
-    // Показать сообщение ответа
-    function showResponse(elementId, data, type = 'success') {
-        const responseElement = document.getElementById(elementId);
-        responseElement.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
-        responseElement.className = `response ${type}`;
-
-        // Автоматическое скрытие через 5 секунд
-        setTimeout(() => {
-            responseElement.className = 'response';
-            responseElement.innerHTML = '';
-        }, 5000);
-    }
-
-    // ========== Функции для работы с факультетами ==========
-    function openFacultyModal(faculty = null) {
-        if (faculty) {
-            document.getElementById('facultyModalTitle').textContent = 'Редактировать факультет';
-            document.getElementById('facultyId').value = faculty.id;
-            document.getElementById('facultyName').value = faculty.name;
-        } else {
-            document.getElementById('facultyModalTitle').textContent = 'Добавить факультет';
-            document.getElementById('facultyId').value = '';
-        }
-
-        openModal('facultyModal');
-    }
-
-    function handleFacultySubmit(e) {
-        e.preventDefault();
-
-        const id = document.getElementById('facultyId').value;
-        const name = document.getElementById('facultyName').value.trim();
-
-        // Валидация
-        if (!name) {
-            document.getElementById('facultyNameError').textContent = 'Название обязательно';
+    fetch(`${API_URL}/faculties/`)
+    .then(response => {
+        if (!response.ok) throw new Error('Ошибка загрузки');
+        return response.json();
+    })
+    .then(data => {
+        if (data.length === 0) {
+            facultiesList.innerHTML = '<p class="text-muted">Нет данных о факультетах</p>';
             return;
         }
 
-        const facultyData = { name };
-        const method = id ? 'PUT' : 'POST';
-        const url = id ? `${API_URL}/faculties/${id}` : `${API_URL}/faculties/`;
+        let html = '<table><tr><th>ID</th><th>Название</th><th>Действия</th></tr>';
+        data.forEach(faculty => {
+            html += `
+                <tr>
+                    <td>${faculty.id}</td>
+                    <td>${faculty.name}</td>
+                    <td class="action-btns">
+                        <button class="action-btn" onclick="openFacultyModal(${JSON.stringify(faculty).replace(/"/g, '&quot;')})">Изменить</button>
+                        <button class="action-btn btn-danger" onclick="deleteFaculty(${faculty.id})">Удалить</button>
+                    </td>
+                </tr>
+            `;
+        });
+        html += '</table>';
+        facultiesList.innerHTML = html;
+    })
+    .catch(error => {
+        facultiesList.innerHTML = `<p class="text-muted">Ошибка загрузки: ${error.message}</p>`;
+    });
+}
 
-        // Показать индикатор загрузки
-        const submitBtn = document.getElementById('facultySubmitBtn');
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = '<span class="loading"></span> Сохранение...';
-
-        fetch(url, {
-            method: method,
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(facultyData)
+function deleteFaculty(id) {
+    if (confirm('Вы уверены, что хотите удалить этот факультет?')) {
+        fetch(`${API_URL}/faculties/${id}`, { method: 'DELETE' })
+        .then(response => {
+            if (!response.ok) throw new Error('Ошибка при удалении');
+            return response.json();
         })
-        .then(response => response.json())
-        .then(data => {
-            showResponse('facultyResponse', data, 'success');
-            closeModal('facultyModal');
+        .then(() => {
+            showResponse('facultyResponse', { message: 'Факультет успешно удален' }, 'success');
             getFaculties();
+            loadFaculties();
         })
         .catch(error => {
             showResponse('facultyResponse', error, 'error');
-        })
-        .finally(() => {
-            submitBtn.disabled = false;
-            submitBtn.textContent = 'Сохранить';
         });
     }
+}
 
-    function getFaculties() {
-        const facultiesList = document.getElementById('facultiesList');
-        facultiesList.innerHTML = '<p class="text-muted">Загрузка данных...</p>';
+/* ========== Функции для работы с программами ========== */
+function loadPrograms() {
+    const facultyId = document.getElementById('facultyFilter').value;
+    const programSelect = document.getElementById('programFilter');
+    const groupSelect = document.getElementById('groupFilter');
 
-        fetch(`${API_URL}/faculties/`)
-        .then(response => response.json())
-        .then(data => {
-            if (data.length === 0) {
-                facultiesList.innerHTML = '<p class="text-muted">Нет данных о факультетах</p>';
-                return;
-            }
+    if (!facultyId) {
+        programSelect.disabled = true;
+        groupSelect.disabled = true;
+        programSelect.innerHTML = '<option value="">Выберите программу</option>';
+        groupSelect.innerHTML = '<option value="">Выберите группу</option>';
+        return;
+    }
 
-            let html = '<table><tr><th>ID</th><th>Название</th><th>Действия</th></tr>';
-
-            data.forEach(faculty => {
-                html += `
-                    <tr>
-                        <td>${faculty.id}</td>
-                        <td>${faculty.name}</td>
-                        <td class="action-btns">
-                            <button class="action-btn" onclick="openFacultyModal(${JSON.stringify(faculty).replace(/"/g, '&quot;')})">Изменить</button>
-                            <button class="action-btn btn-danger" onclick="deleteFaculty(${faculty.id})">Удалить</button>
-                        </td>
-                    </tr>
-                `;
-            });
-
-            html += '</table>';
-            facultiesList.innerHTML = html;
-        })
-        .catch(error => {
-            facultiesList.innerHTML = `<p class="text-muted">Ошибка загрузки: ${error.message}</p>`;
+    fetch(`${API_URL}/faculties/${facultyId}/programs`)
+    .then(response => {
+        if (!response.ok) throw new Error('Ошибка загрузки программ');
+        return response.json();
+    })
+    .then(data => {
+        programSelect.innerHTML = '<option value="">Выберите программу</option>';
+        data.forEach(program => {
+            programSelect.innerHTML += `<option value="${program.id}">${program.name}</option>`;
         });
+        programSelect.disabled = false;
+        groupSelect.disabled = true;
+        groupSelect.innerHTML = '<option value="">Выберите группу</option>';
+    })
+    .catch(error => {
+        console.error('Error loading programs:', error);
+        programSelect.innerHTML = '<option value="">Ошибка загрузки</option>';
+    });
+}
+
+function openProgramModal(program = null) {
+    if (program) {
+        document.getElementById('programModalTitle').textContent = 'Редактировать программу';
+        document.getElementById('programId').value = program.id;
+        document.getElementById('programName').value = program.name;
+        document.getElementById('programFacultyId').value = program.faculty_id;
+        document.getElementById('programEducationLevel').value = program.education_level;
+    } else {
+        document.getElementById('programModalTitle').textContent = 'Добавить программу';
+        document.getElementById('programId').value = '';
     }
+    openModal('programModal');
+}
 
-    function deleteFaculty(id) {
-        if (confirm('Вы уверены, что хотите удалить этот факультет?')) {
-            fetch(`${API_URL}/faculties/${id}`, {
-                method: 'DELETE'
-            })
-            .then(response => {
-                if (response.ok) {
-                    showResponse('facultyResponse', { message: 'Факультет успешно удален' }, 'success');
-                    getFaculties();
-                } else {
-                    throw new Error('Ошибка при удалении');
-                }
-            })
-            .catch(error => {
-                showResponse('facultyResponse', error, 'error');
-            });
-        }
+function handleProgramSubmit(e) {
+    e.preventDefault();
+
+    const id = document.getElementById('programId').value;
+    const name = document.getElementById('programName').value.trim();
+    const faculty_id = parseInt(document.getElementById('programFacultyId').value);
+    const education_level = document.getElementById('programEducationLevel').value;
+
+    // Валидация
+    let isValid = true;
+    if (!name) {
+        document.getElementById('programNameError').textContent = 'Название обязательно';
+        isValid = false;
     }
-
-    // ========== Функции для работы с программами ==========
-    function openProgramModal(program = null) {
-        if (program) {
-            document.getElementById('programModalTitle').textContent = 'Редактировать программу';
-            document.getElementById('programId').value = program.id;
-            document.getElementById('programName').value = program.name;
-            document.getElementById('programFacultyId').value = program.faculty_id;
-            document.getElementById('programEducationLevel').value = program.education_level;
-        } else {
-            document.getElementById('programModalTitle').textContent = 'Добавить программу';
-            document.getElementById('programId').value = '';
-        }
-
-        openModal('programModal');
+    if (!faculty_id || isNaN(faculty_id)) {
+        document.getElementById('programFacultyIdError').textContent = 'ID факультета должен быть числом';
+        isValid = false;
     }
+    if (!education_level) {
+        document.getElementById('programEducationLevelError').textContent = 'Уровень образования обязателен';
+        isValid = false;
+    }
+    if (!isValid) return;
 
-    function handleProgramSubmit(e) {
-        e.preventDefault();
+    const programData = { name, faculty_id, education_level };
+    const method = id ? 'PUT' : 'POST';
+    const url = id ? `${API_URL}/programs/${id}` : `${API_URL}/programs/`;
 
-        const id = document.getElementById('programId').value;
-        const name = document.getElementById('programName').value.trim();
-        const faculty_id = parseInt(document.getElementById('programFacultyId').value);
-        const education_level = document.getElementById('programEducationLevel').value;
+    const submitBtn = document.getElementById('programSubmitBtn');
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<span class="loading"></span> Сохранение...';
 
-        // Валидация
-        let isValid = true;
+    fetch(url, {
+        method: method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(programData)
+    })
+    .then(response => {
+        if (!response.ok) throw new Error('Ошибка сохранения');
+        return response.json();
+    })
+    .then(data => {
+        showResponse('programResponse', data, 'success');
+        closeModal('programModal');
+        getPrograms();
+        loadFaculties(); // Обновляем список факультетов в фильтре
+    })
+    .catch(error => {
+        showResponse('programResponse', error, 'error');
+    })
+    .finally(() => {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Сохранить';
+    });
+}
 
-        if (!name) {
-            document.getElementById('programNameError').textContent = 'Название обязательно';
-            isValid = false;
+function getPrograms() {
+    const programsList = document.getElementById('programsList');
+    programsList.innerHTML = '<p class="text-muted">Загрузка данных...</p>';
+
+    fetch(`${API_URL}/programs/`)
+    .then(response => {
+        if (!response.ok) throw new Error('Ошибка загрузки');
+        return response.json();
+    })
+    .then(data => {
+        if (data.length === 0) {
+            programsList.innerHTML = '<p class="text-muted">Нет данных о программах</p>';
+            return;
         }
 
-        if (!faculty_id || isNaN(faculty_id)) {
-            document.getElementById('programFacultyIdError').textContent = 'ID факультета должен быть числом';
-            isValid = false;
-        }
+        let html = '<table><tr><th>ID</th><th>Название</th><th>ID факультета</th><th>Уровень</th><th>Действия</th></tr>';
+        data.forEach(program => {
+            html += `
+                <tr>
+                    <td>${program.id}</td>
+                    <td>${program.name}</td>
+                    <td>${program.faculty_id}</td>
+                    <td>${program.education_level}</td>
+                    <td class="action-btns">
+                        <button class="action-btn" onclick="openProgramModal(${JSON.stringify(program).replace(/"/g, '&quot;')})">Изменить</button>
+                        <button class="action-btn btn-danger" onclick="deleteProgram(${program.id})">Удалить</button>
+                    </td>
+                </tr>
+            `;
+        });
+        html += '</table>';
+        programsList.innerHTML = html;
+    })
+    .catch(error => {
+        programsList.innerHTML = `<p class="text-muted">Ошибка загрузки: ${error.message}</p>`;
+    });
+}
 
-        if (!education_level) {
-            document.getElementById('programEducationLevelError').textContent = 'Уровень образования обязателен';
-            isValid = false;
-        }
-
-        if (!isValid) return;
-
-        const programData = {
-            name,
-            faculty_id,
-            education_level
-        };
-
-        const method = id ? 'PUT' : 'POST';
-        const url = id ? `${API_URL}/programs/${id}` : `${API_URL}/programs/`;
-
-        const submitBtn = document.getElementById('programSubmitBtn');
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = '<span class="loading"></span> Сохранение...';
-
-        fetch(url, {
-            method: method,
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(programData)
+function deleteProgram(id) {
+    if (confirm('Вы уверены, что хотите удалить эту программу?')) {
+        fetch(`${API_URL}/programs/${id}`, { method: 'DELETE' })
+        .then(response => {
+            if (!response.ok) throw new Error('Ошибка при удалении');
+            return response.json();
         })
-        .then(response => response.json())
-        .then(data => {
-            showResponse('programResponse', data, 'success');
-            closeModal('programModal');
+        .then(() => {
+            showResponse('programResponse', { message: 'Программа успешно удалена' }, 'success');
             getPrograms();
         })
         .catch(error => {
             showResponse('programResponse', error, 'error');
-        })
-        .finally(() => {
-            submitBtn.disabled = false;
-            submitBtn.textContent = 'Сохранить';
         });
     }
+}
 
-    function getPrograms() {
-        const programsList = document.getElementById('programsList');
-        programsList.innerHTML = '<p class="text-muted">Загрузка данных...</p>';
+/* ========== Функции для работы с группами ========== */
+function loadGroups() {
+    const programId = document.getElementById('programFilter').value;
+    const groupSelect = document.getElementById('groupFilter');
 
-        fetch(`${API_URL}/programs/`)
-        .then(response => response.json())
-        .then(data => {
-            if (data.length === 0) {
-                programsList.innerHTML = '<p class="text-muted">Нет данных о программах</p>';
-                return;
-            }
+    if (!programId) {
+        groupSelect.disabled = true;
+        groupSelect.innerHTML = '<option value="">Выберите группу</option>';
+        return;
+    }
 
-            let html = '<table><tr><th>ID</th><th>Название</th><th>ID факультета</th><th>Уровень</th><th>Действия</th></tr>';
-
-            data.forEach(program => {
-                html += `
-                    <tr>
-                        <td>${program.id}</td>
-                        <td>${program.name}</td>
-                        <td>${program.faculty_id}</td>
-                        <td>${program.education_level}</td>
-                        <td class="action-btns">
-                            <button class="action-btn" onclick="openProgramModal(${JSON.stringify(program).replace(/"/g, '&quot;')})">Изменить</button>
-                            <button class="action-btn btn-danger" onclick="deleteProgram(${program.id})">Удалить</button>
-                        </td>
-                    </tr>
-                `;
-            });
-
-            html += '</table>';
-            programsList.innerHTML = html;
-        })
-        .catch(error => {
-            programsList.innerHTML = `<p class="text-muted">Ошибка загрузки: ${error.message}</p>`;
+    fetch(`${API_URL}/programs/${programId}/groups`)
+    .then(response => {
+        if (!response.ok) throw new Error('Ошибка загрузки групп');
+        return response.json();
+    })
+    .then(data => {
+        groupSelect.innerHTML = '<option value="">Выберите группу</option>';
+        data.forEach(group => {
+            groupSelect.innerHTML += `<option value="${group.id}">${group.name}</option>`;
         });
+        groupSelect.disabled = false;
+    })
+    .catch(error => {
+        console.error('Error loading groups:', error);
+        groupSelect.innerHTML = '<option value="">Ошибка загрузки</option>';
+    });
+}
+
+function openGroupModal(group = null) {
+    if (group) {
+        document.getElementById('groupModalTitle').textContent = 'Редактировать группу';
+        document.getElementById('groupId').value = group.id;
+        document.getElementById('groupName').value = group.name;
+        document.getElementById('groupProgramId').value = group.program_id;
+        document.getElementById('groupStudyForm').value = group.study_form;
+        document.getElementById('groupEducationLevel').value = group.education_level;
+    } else {
+        document.getElementById('groupModalTitle').textContent = 'Добавить группу';
+        document.getElementById('groupId').value = '';
     }
+    openModal('groupModal');
+}
 
-    function deleteProgram(id) {
-        if (confirm('Вы уверены, что хотите удалить эту программу?')) {
-            fetch(`${API_URL}/programs/${id}`, {
-                method: 'DELETE'
-            })
-            .then(response => {
-                if (response.ok) {
-                    showResponse('programResponse', { message: 'Программа успешно удалена' }, 'success');
-                    getPrograms();
-                } else {
-                    throw new Error('Ошибка при удалении');
-                }
-            })
-            .catch(error => {
-                showResponse('programResponse', error, 'error');
-            });
-        }
+function handleGroupSubmit(e) {
+    e.preventDefault();
+
+    const id = document.getElementById('groupId').value;
+    const name = document.getElementById('groupName').value.trim();
+    const program_id = parseInt(document.getElementById('groupProgramId').value);
+    const study_form = document.getElementById('groupStudyForm').value;
+    const education_level = document.getElementById('groupEducationLevel').value;
+
+    // Валидация
+    let isValid = true;
+    if (!name) {
+        document.getElementById('groupNameError').textContent = 'Название обязательно';
+        isValid = false;
     }
-
-    // ========== Функции для работы с группами ==========
-    function openGroupModal(group = null) {
-        if (group) {
-            document.getElementById('groupModalTitle').textContent = 'Редактировать группу';
-            document.getElementById('groupId').value = group.id;
-            document.getElementById('groupName').value = group.name;
-            document.getElementById('groupProgramId').value = group.program_id;
-            document.getElementById('groupStudyForm').value = group.study_form;
-            document.getElementById('groupEducationLevel').value = group.education_level;
-        } else {
-            document.getElementById('groupModalTitle').textContent = 'Добавить группу';
-            document.getElementById('groupId').value = '';
-        }
-
-        openModal('groupModal');
+    if (!program_id || isNaN(program_id)) {
+        document.getElementById('groupProgramIdError').textContent = 'ID программы должен быть числом';
+        isValid = false;
     }
+    if (!study_form) {
+        document.getElementById('groupStudyFormError').textContent = 'Форма обучения обязательна';
+        isValid = false;
+    }
+    if (!education_level) {
+        document.getElementById('groupEducationLevelError').textContent = 'Уровень образования обязателен';
+        isValid = false;
+    }
+    if (!isValid) return;
 
-    function handleGroupSubmit(e) {
-        e.preventDefault();
+    const groupData = { name, program_id, study_form, education_level };
+    const method = id ? 'PUT' : 'POST';
+    const url = id ? `${API_URL}/groups/${id}` : `${API_URL}/groups/`;
 
-        const id = document.getElementById('groupId').value;
-        const name = document.getElementById('groupName').value.trim();
-        const program_id = parseInt(document.getElementById('groupProgramId').value);
-        const study_form = document.getElementById('groupStudyForm').value;
-        const education_level = document.getElementById('groupEducationLevel').value;
+    const submitBtn = document.getElementById('groupSubmitBtn');
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<span class="loading"></span> Сохранение...';
 
-        // Валидация
-        let isValid = true;
+    fetch(url, {
+        method: method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(groupData)
+    })
+    .then(response => {
+        if (!response.ok) throw new Error('Ошибка сохранения');
+        return response.json();
+    })
+    .then(data => {
+        showResponse('groupResponse', data, 'success');
+        closeModal('groupModal');
+        getGroups();
+        loadFaculties(); // Обновляем списки фильтров
+    })
+    .catch(error => {
+        showResponse('groupResponse', error, 'error');
+    })
+    .finally(() => {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Сохранить';
+    });
+}
 
-        if (!name) {
-            document.getElementById('groupNameError').textContent = 'Название обязательно';
-            isValid = false;
+function getGroups() {
+    const groupsList = document.getElementById('groupsList');
+    groupsList.innerHTML = '<p class="text-muted">Загрузка данных...</p>';
+
+    fetch(`${API_URL}/groups/`)
+    .then(response => {
+        if (!response.ok) throw new Error('Ошибка загрузки');
+        return response.json();
+    })
+    .then(data => {
+        if (data.length === 0) {
+            groupsList.innerHTML = '<p class="text-muted">Нет данных о группах</p>';
+            return;
         }
 
-        if (!program_id || isNaN(program_id)) {
-            document.getElementById('groupProgramIdError').textContent = 'ID программы должен быть числом';
-            isValid = false;
-        }
+        let html = '<table><tr><th>ID</th><th>Название</th><th>ID программы</th><th>Форма обучения</th><th>Уровень</th><th>Действия</th></tr>';
+        data.forEach(group => {
+            html += `
+                <tr>
+                    <td>${group.id}</td>
+                    <td>${group.name}</td>
+                    <td>${group.program_id}</td>
+                    <td>${group.study_form}</td>
+                    <td>${group.education_level}</td>
+                    <td class="action-btns">
+                        <button class="action-btn" onclick="openGroupModal(${JSON.stringify(group).replace(/"/g, '&quot;')})">Изменить</button>
+                        <button class="action-btn btn-danger" onclick="deleteGroup(${group.id})">Удалить</button>
+                    </td>
+                </tr>
+            `;
+        });
+        html += '</table>';
+        groupsList.innerHTML = html;
+    })
+    .catch(error => {
+        groupsList.innerHTML = `<p class="text-muted">Ошибка загрузки: ${error.message}</p>`;
+    });
+}
 
-        if (!study_form) {
-            document.getElementById('groupStudyFormError').textContent = 'Форма обучения обязательна';
-            isValid = false;
-        }
-
-        if (!education_level) {
-            document.getElementById('groupEducationLevelError').textContent = 'Уровень образования обязателен';
-            isValid = false;
-        }
-
-        if (!isValid) return;
-
-        const groupData = {
-            name,
-            program_id,
-            study_form,
-            education_level
-        };
-
-        const method = id ? 'PUT' : 'POST';
-        const url = id ? `${API_URL}/groups/${id}` : `${API_URL}/groups/`;
-
-        const submitBtn = document.getElementById('groupSubmitBtn');
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = '<span class="loading"></span> Сохранение...';
-
-        fetch(url, {
-            method: method,
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(groupData)
+function deleteGroup(id) {
+    if (confirm('Вы уверены, что хотите удалить эту группу?')) {
+        fetch(`${API_URL}/groups/${id}`, { method: 'DELETE' })
+        .then(response => {
+            if (!response.ok) throw new Error('Ошибка при удалении');
+            return response.json();
         })
-        .then(response => response.json())
-        .then(data => {
-            showResponse('groupResponse', data, 'success');
-            closeModal('groupModal');
+        .then(() => {
+            showResponse('groupResponse', { message: 'Группа успешно удалена' }, 'success');
             getGroups();
         })
         .catch(error => {
             showResponse('groupResponse', error, 'error');
-        })
-        .finally(() => {
-            submitBtn.disabled = false;
-            submitBtn.textContent = 'Сохранить';
         });
     }
+}
 
-    function getGroups() {
-        const groupsList = document.getElementById('groupsList');
-        groupsList.innerHTML = '<p class="text-muted">Загрузка данных...</p>';
+/* ========== Функции для работы со студентами ========== */
+function loadStudents() {
+    const groupId = document.getElementById('groupFilter').value;
+    const budgetFilter = document.getElementById('budgetFilter').value;
+    const statusFilter = document.getElementById('statusFilter').value;
+    const genderFilter = document.getElementById('genderFilter').value;
 
-        fetch(`${API_URL}/groups/`)
-        .then(response => response.json())
-        .then(data => {
-            if (data.length === 0) {
-                groupsList.innerHTML = '<p class="text-muted">Нет данных о группах</p>';
-                return;
-            }
+    if (!groupId) {
+        document.getElementById('studentsList').innerHTML = '<p class="text-muted">Выберите группу</p>';
+        return;
+    }
 
-            let html = '<table><tr><th>ID</th><th>Название</th><th>ID программы</th><th>Форма обучения</th><th>Уровень</th><th>Действия</th></tr>';
+    let url = `${API_URL}/groups/${groupId}/students?`;
+    if (budgetFilter) url += `budget_contract=${budgetFilter}&`;
+    if (statusFilter) url += `status=${statusFilter}&`;
+    if (genderFilter) url += `gender=${genderFilter}`;
 
-            data.forEach(group => {
-                html += `
-                    <tr>
-                        <td>${group.id}</td>
-                        <td>${group.name}</td>
-                        <td>${group.program_id}</td>
-                        <td>${group.study_form}</td>
-                        <td>${group.education_level}</td>
-                        <td class="action-btns">
-                            <button class="action-btn" onclick="openGroupModal(${JSON.stringify(group).replace(/"/g, '&quot;')})">Изменить</button>
-                            <button class="action-btn btn-danger" onclick="deleteGroup(${group.id})">Удалить</button>
-                        </td>
-                    </tr>
-                `;
-            });
+    fetch(url)
+    .then(response => {
+        if (!response.ok) throw new Error('Ошибка загрузки студентов');
+        return response.json();
+    })
+    .then(data => {
+        renderStudentsTable(data);
+    })
+    .catch(error => {
+        console.error('Error loading students:', error);
+        document.getElementById('studentsList').innerHTML = '<p class="text-muted">Ошибка загрузки студентов</p>';
+    });
+}
 
-            html += '</table>';
-            groupsList.innerHTML = html;
+function applyFilters() {
+    loadStudents();
+}
+
+function renderStudentsTable(students) {
+    const studentsList = document.getElementById('studentsList');
+
+    if (students.length === 0) {
+        studentsList.innerHTML = '<p class="text-muted">Нет данных о студентах</p>';
+        return;
+    }
+
+    let html = '<table><tr><th>ID</th><th>ФИО</th><th>Группа</th><th>Статус</th><th>Основа</th><th>Действия</th></tr>';
+    students.forEach(student => {
+        const fullName = `${student.last_name} ${student.first_name} ${student.middle_name || ''}`;
+        html += `
+            <tr>
+                <td>${student.id}</td>
+                <td>${fullName}</td>
+                <td>${student.group_id}</td>
+                <td>${student.status}</td>
+                <td>${student.budget_contract}</td>
+                <td class="action-btns">
+                    <button class="action-btn" onclick="viewStudent(${student.id})">Просмотр</button>
+                    <button class="action-btn" onclick="openStudentModal(${JSON.stringify(student).replace(/"/g, '&quot;')})">Изменить</button>
+                    <button class="action-btn btn-danger" onclick="deleteStudent(${student.id})">Удалить</button>
+                </td>
+            </tr>
+        `;
+    });
+    html += '</table>';
+    studentsList.innerHTML = html;
+}
+
+function openStudentModal(student = null) {
+    if (student) {
+        document.getElementById('studentModalTitle').textContent = 'Редактировать студента';
+        document.getElementById('studentId').value = student.id;
+        document.getElementById('studentLastName').value = student.last_name;
+        document.getElementById('studentFirstName').value = student.first_name;
+        document.getElementById('studentMiddleName').value = student.middle_name || '';
+        document.getElementById('studentBirthDate').value = student.birth_date || '';
+        document.getElementById('studentEmail').value = student.email || '';
+        document.getElementById('studentPhone').value = student.phone_number || '';
+        document.getElementById('studentAddress').value = student.address || '';
+        document.getElementById('studentGender').value = student.gender || '';
+        document.getElementById('studentBudgetContract').value = student.budget_contract;
+        document.getElementById('studentStatus').value = student.status;
+        document.getElementById('studentGroupId').value = student.group_id;
+        document.getElementById('studentEducationLevel').value = student.education_level;
+    } else {
+        document.getElementById('studentModalTitle').textContent = 'Добавить студента';
+        document.getElementById('studentId').value = '';
+    }
+    openModal('studentModal');
+}
+
+function handleStudentSubmit(e) {
+    e.preventDefault();
+
+    const id = document.getElementById('studentId').value;
+    const studentData = {
+        last_name: document.getElementById('studentLastName').value.trim(),
+        first_name: document.getElementById('studentFirstName').value.trim(),
+        middle_name: document.getElementById('studentMiddleName').value.trim() || null,
+        birth_date: document.getElementById('studentBirthDate').value || null,
+        email: document.getElementById('studentEmail').value.trim() || null,
+        phone_number: document.getElementById('studentPhone').value.trim() || null,
+        address: document.getElementById('studentAddress').value.trim() || null,
+        gender: document.getElementById('studentGender').value || null,
+        budget_contract: document.getElementById('studentBudgetContract').value,
+        status: document.getElementById('studentStatus').value,
+        group_id: parseInt(document.getElementById('studentGroupId').value),
+        education_level: document.getElementById('studentEducationLevel').value
+    };
+
+    // Валидация
+    let isValid = true;
+    if (!studentData.last_name) {
+        document.getElementById('studentLastNameError').textContent = 'Фамилия обязательна';
+        isValid = false;
+    }
+    if (!studentData.first_name) {
+        document.getElementById('studentFirstNameError').textContent = 'Имя обязательно';
+        isValid = false;
+    }
+    if (studentData.email && !/^\S+@\S+\.\S+$/.test(studentData.email)) {
+        document.getElementById('studentEmailError').textContent = 'Неверный формат email';
+        isValid = false;
+    }
+    if (!studentData.budget_contract) {
+        document.getElementById('studentBudgetContractError').textContent = 'Основа обучения обязательна';
+        isValid = false;
+    }
+    if (!studentData.status) {
+        document.getElementById('studentStatusError').textContent = 'Статус обязателен';
+        isValid = false;
+    }
+    if (!studentData.group_id || isNaN(studentData.group_id)) {
+        document.getElementById('studentGroupIdError').textContent = 'ID группы должен быть числом';
+        isValid = false;
+    }
+    if (!studentData.education_level) {
+        document.getElementById('studentEducationLevelError').textContent = 'Уровень образования обязателен';
+        isValid = false;
+    }
+    if (!isValid) return;
+
+    const method = id ? 'PUT' : 'POST';
+    const url = id ? `${API_URL}/students/${id}` : `${API_URL}/students/`;
+
+    const submitBtn = document.getElementById('studentSubmitBtn');
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<span class="loading"></span> Сохранение...';
+
+    fetch(url, {
+        method: method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(studentData)
+    })
+    .then(response => {
+        if (!response.ok) throw new Error('Ошибка сохранения');
+        return response.json();
+    })
+    .then(data => {
+        showResponse('studentResponse', data, 'success');
+        closeModal('studentModal');
+        loadStudents();
+    })
+    .catch(error => {
+        showResponse('studentResponse', error, 'error');
+    })
+    .finally(() => {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Сохранить';
+    });
+}
+
+function viewStudent(id) {
+    fetch(`${API_URL}/students/${id}`)
+    .then(response => {
+        if (!response.ok) throw new Error('Ошибка загрузки данных студента');
+        return response.json();
+    })
+    .then(data => {
+        const modal = document.createElement('div');
+        modal.className = 'modal active';
+        modal.innerHTML = `
+            <div class="modal-content" style="max-width: 500px;">
+                <div class="modal-header">
+                    <h3 class="modal-title">Информация о студенте</h3>
+                    <button class="modal-close" onclick="this.closest('.modal').remove(); document.body.style.overflow = 'auto';">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <p><strong>ФИО:</strong> ${data.last_name} ${data.first_name} ${data.middle_name || ''}</p>
+                    <p><strong>Дата рождения:</strong> ${data.birth_date || 'не указана'}</p>
+                    <p><strong>Email:</strong> ${data.email || 'не указан'}</p>
+                    <p><strong>Телефон:</strong> ${data.phone_number || 'не указан'}</p>
+                    <p><strong>Адрес:</strong> ${data.address || 'не указан'}</p>
+                    <p><strong>Пол:</strong> ${data.gender === 'М' ? 'Мужской' : data.gender === 'Ж' ? 'Женский' : 'не указан'}</p>
+                    <p><strong>Основа обучения:</strong> ${data.budget_contract}</p>
+                    <p><strong>Статус:</strong> ${data.status}</p>
+                    <p><strong>ID группы:</strong> ${data.group_id}</p>
+                    <p><strong>Уровень образования:</strong> ${data.education_level}</p>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn-outline" onclick="this.closest('.modal').remove(); document.body.style.overflow = 'auto';">Закрыть</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+        document.body.style.overflow = 'hidden';
+    })
+    .catch(error => {
+        alert('Ошибка при загрузке данных студента: ' + error.message);
+    });
+}
+
+function deleteStudent(id) {
+    if (confirm('Вы уверены, что хотите удалить этого студента?')) {
+        fetch(`${API_URL}/students/${id}`, { method: 'DELETE' })
+        .then(response => {
+            if (!response.ok) throw new Error('Ошибка при удалении');
+            return response.json();
         })
-        .catch(error => {
-            groupsList.innerHTML = `<p class="text-muted">Ошибка загрузки: ${error.message}</p>`;
-        });
-    }
-
-    function deleteGroup(id) {
-        if (confirm('Вы уверены, что хотите удалить эту группу?')) {
-            fetch(`${API_URL}/groups/${id}`, {
-                method: 'DELETE'
-            })
-            .then(response => {
-                if (response.ok) {
-                    showResponse('groupResponse', { message: 'Группа успешно удалена' }, 'success');
-                    getGroups();
-                } else {
-                    throw new Error('Ошибка при удалении');
-                }
-            })
-            .catch(error => {
-                showResponse('groupResponse', error, 'error');
-            });
-        }
-    }
-
-    // ========== Функции для работы со студентами ==========
-    function openStudentModal(student = null) {
-        if (student) {
-            document.getElementById('studentModalTitle').textContent = 'Редактировать студента';
-            document.getElementById('studentId').value = student.id;
-            document.getElementById('studentLastName').value = student.last_name;
-            document.getElementById('studentFirstName').value = student.first_name;
-            document.getElementById('studentMiddleName').value = student.middle_name || '';
-            document.getElementById('studentBirthDate').value = student.birth_date || '';
-            document.getElementById('studentEmail').value = student.email || '';
-            document.getElementById('studentPhone').value = student.phone_number || '';
-            document.getElementById('studentAddress').value = student.address || '';
-            document.getElementById('studentGender').value = student.gender || '';
-            document.getElementById('studentBudgetContract').value = student.budget_contract;
-            document.getElementById('studentStatus').value = student.status;
-            document.getElementById('studentGroupId').value = student.group_id;
-            document.getElementById('studentEducationLevel').value = student.education_level;
-        } else {
-            document.getElementById('studentModalTitle').textContent = 'Добавить студента';
-            document.getElementById('studentId').value = '';
-        }
-
-        openModal('studentModal');
-    }
-
-    function handleStudentSubmit(e) {
-        e.preventDefault();
-
-        const id = document.getElementById('studentId').value;
-        const studentData = {
-            last_name: document.getElementById('studentLastName').value.trim(),
-            first_name: document.getElementById('studentFirstName').value.trim(),
-            middle_name: document.getElementById('studentMiddleName').value.trim() || null,
-            birth_date: document.getElementById('studentBirthDate').value || null,
-            email: document.getElementById('studentEmail').value.trim() || null,
-            phone_number: document.getElementById('studentPhone').value.trim() || null,
-            address: document.getElementById('studentAddress').value.trim() || null,
-            gender: document.getElementById('studentGender').value || null,
-            budget_contract: document.getElementById('studentBudgetContract').value,
-            status: document.getElementById('studentStatus').value,
-            group_id: parseInt(document.getElementById('studentGroupId').value),
-            education_level: document.getElementById('studentEducationLevel').value
-        };
-
-        // Валидация
-        let isValid = true;
-
-        if (!studentData.last_name) {
-            document.getElementById('studentLastNameError').textContent = 'Фамилия обязательна';
-            isValid = false;
-        }
-
-        if (!studentData.first_name) {
-            document.getElementById('studentFirstNameError').textContent = 'Имя обязательно';
-            isValid = false;
-        }
-
-        if (studentData.email && !/^\S+@\S+\.\S+$/.test(studentData.email)) {
-            document.getElementById('studentEmailError').textContent = 'Неверный формат email';
-            isValid = false;
-        }
-
-        if (!studentData.budget_contract) {
-            document.getElementById('studentBudgetContractError').textContent = 'Основа обучения обязательна';
-            isValid = false;
-        }
-
-        if (!studentData.status) {
-            document.getElementById('studentStatusError').textContent = 'Статус обязателен';
-            isValid = false;
-        }
-
-        if (!studentData.group_id || isNaN(studentData.group_id)) {
-            document.getElementById('studentGroupIdError').textContent = 'ID группы должен быть числом';
-            isValid = false;
-        }
-
-        if (!studentData.education_level) {
-            document.getElementById('studentEducationLevelError').textContent = 'Уровень образования обязателен';
-            isValid = false;
-        }
-
-        if (!isValid) return;
-
-        const method = id ? 'PUT' : 'POST';
-        const url = id ? `${API_URL}/students/${id}` : `${API_URL}/students/`;
-
-        const submitBtn = document.getElementById('studentSubmitBtn');
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = '<span class="loading"></span> Сохранение...';
-
-        fetch(url, {
-            method: method,
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(studentData)
-        })
-        .then(response => response.json())
-        .then(data => {
-            showResponse('studentResponse', data, 'success');
-            closeModal('studentModal');
-            getStudents();
+        .then(() => {
+            showResponse('studentResponse', { message: 'Студент успешно удален' }, 'success');
+            loadStudents();
         })
         .catch(error => {
             showResponse('studentResponse', error, 'error');
-        })
-        .finally(() => {
-            submitBtn.disabled = false;
-            submitBtn.textContent = 'Сохранить';
         });
     }
-
-    function getStudents() {
-        const studentsList = document.getElementById('studentsList');
-        studentsList.innerHTML = '<p class="text-muted">Загрузка данных...</p>';
-
-        fetch(`${API_URL}/students/`)
-        .then(response => response.json())
-        .then(data => {
-            if (data.length === 0) {
-                studentsList.innerHTML = '<p class="text-muted">Нет данных о студентах</p>';
-                return;
-            }
-
-            let html = '<table><tr><th>ID</th><th>ФИО</th><th>Группа</th><th>Статус</th><th>Действия</th></tr>';
-
-            data.forEach(student => {
-                const fullName = `${student.last_name} ${student.first_name} ${student.middle_name || ''}`;
-                html += `
-                    <tr>
-                        <td>${student.id}</td>
-                        <td>${fullName}</td>
-                        <td>${student.group_id}</td>
-                        <td>${student.status}</td>
-                        <td class="action-btns">
-                            <button class="action-btn" onclick="viewStudent(${student.id})">Просмотр</button>
-                            <button class="action-btn" onclick="openStudentModal(${JSON.stringify(student).replace(/"/g, '&quot;')})">Изменить</button>
-                            <button class="action-btn btn-danger" onclick="deleteStudent(${student.id})">Удалить</button>
-                        </td>
-                    </tr>
-                `;
-            });
-
-            html += '</table>';
-            studentsList.innerHTML = html;
-        })
-        .catch(error => {
-            studentsList.innerHTML = `<p class="text-muted">Ошибка загрузки: ${error.message}</p>`;
-        });
-    }
-
-    function viewStudent(id) {
-        fetch(`${API_URL}/students/${id}`)
-        .then(response => response.json())
-        .then(data => {
-            const modal = document.createElement('div');
-            modal.className = 'modal active';
-            modal.innerHTML = `
-                <div class="modal-content" style="max-width: 500px;">
-                    <div class="modal-header">
-                        <h3 class="modal-title">Информация о студенте</h3>
-                        <button class="modal-close" onclick="this.closest('.modal').remove(); document.body.style.overflow = 'auto';">&times;</button>
-                    </div>
-                    <div class="modal-body">
-                        <p><strong>ФИО:</strong> ${data.last_name} ${data.first_name} ${data.middle_name || ''}</p>
-                        <p><strong>Дата рождения:</strong> ${data.birth_date || 'не указана'}</p>
-                        <p><strong>Email:</strong> ${data.email || 'не указан'}</p>
-                        <p><strong>Телефон:</strong> ${data.phone_number || 'не указан'}</p>
-                        <p><strong>Адрес:</strong> ${data.address || 'не указан'}</p>
-                        <p><strong>Пол:</strong> ${data.gender === 'М' ? 'Мужской' : data.gender === 'Ж' ? 'Женский' : 'не указан'}</p>
-                        <p><strong>Основа обучения:</strong> ${data.budget_contract}</p>
-                        <p><strong>Статус:</strong> ${data.status}</p>
-                        <p><strong>ID группы:</strong> ${data.group_id}</p>
-                        <p><strong>Уровень образования:</strong> ${data.education_level}</p>
-                    </div>
-                    <div class="modal-footer">
-                        <button class="btn-outline" onclick="this.closest('.modal').remove(); document.body.style.overflow = 'auto';">Закрыть</button>
-                    </div>
-                </div>
-            `;
-            document.body.appendChild(modal);
-            document.body.style.overflow = 'hidden';
-        })
-        .catch(error => {
-            alert('Ошибка при загрузке данных студента: ' + error.message);
-        });
-    }
-
-    function deleteStudent(id) {
-        if (confirm('Вы уверены, что хотите удалить этого студента?')) {
-            fetch(`${API_URL}/students/${id}`, {
-                method: 'DELETE'
-            })
-            .then(response => {
-                if (response.ok) {
-                    showResponse('studentResponse', { message: 'Студент успешно удален' }, 'success');
-                    getStudents();
-                } else {
-                    throw new Error('Ошибка при удалении');
-                }
-            })
-            .catch(error => {
-                showResponse('studentResponse', error, 'error');
-            });
-        }
-    }
+}
 </script>
 </body>
 </html>
+
